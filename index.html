@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+  <meta name="theme-color" content="#0a0e27"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>BabyKeyPlay 🌟</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{overflow:hidden;width:100%;height:100%;background:#0a0e27;touch-action:none;user-select:none;-webkit-user-select:none}
+    #root{width:100%;height:100%}
+    canvas{display:block;position:fixed;top:0;left:0;touch-action:none;pointer-events:none}
+    @keyframes camera-shake{0%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(6px,6px) rotate(1.5deg)}50%{transform:translate(-6px,-6px) rotate(-1.5deg)}75%{transform:translate(6px,-6px) rotate(1deg)}100%{transform:translate(0,0) rotate(0deg)}}
+    @keyframes screen-flash{0%{background:rgba(255,255,255,0.9)}100%{background:transparent}}
+    @keyframes bkp-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.05)}}
+    @keyframes float-up{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-130px) scale(1.5);opacity:0}}
+    @keyframes letter-pop{0%{transform:translate(-50%,-50%) scale(0) rotate(-15deg);opacity:0}30%{transform:translate(-50%,-50%) scale(1.3) rotate(5deg);opacity:1}70%{transform:translate(-50%,-50%) scale(1) rotate(-2deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1.5) rotate(0deg);opacity:0}}
+    @keyframes combo-burst{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.5);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
+    @keyframes wiggle{0%,100%{transform:rotate(-5deg) scale(1)}50%{transform:rotate(5deg) scale(1.05)}}
+    @keyframes balloon-float{0%{transform:translateY(0) rotate(-5deg);opacity:1}100%{transform:translateY(-110vh) rotate(5deg);opacity:0.3}}
+    @keyframes target-pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.15)}}
+    @keyframes gift-bounce{0%,100%{transform:translate(-50%,-50%) scale(1) rotate(-3deg)}50%{transform:translate(-50%,-50%) scale(1.1) rotate(3deg)}}
+    @keyframes word-pop{0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg);opacity:0}25%{transform:translate(-50%,-50%) scale(1.4) rotate(8deg);opacity:1}75%{transform:translate(-50%,-50%) scale(1.1) rotate(-3deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1.6) rotate(0);opacity:0}}
+    @keyframes badge-in{0%{transform:translateX(120%) scale(0.5);opacity:0}50%{transform:translateX(-10%) scale(1.05);opacity:1}75%{transform:translateX(5%) scale(0.98)}100%{transform:translateX(0%) scale(1);opacity:1}}
+    @keyframes badge-out{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
+    @keyframes fly-across{0%{transform:translateX(-200px) scaleX(1)}49%{transform:translateX(calc(100vw + 200px)) scaleX(1)}50%{transform:translateX(calc(100vw + 200px)) scaleX(-1)}100%{transform:translateX(-200px) scaleX(-1)}}
+    @keyframes warp-spin{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:1}100%{transform:translate(-50%,-50%) scale(3) rotate(720deg);opacity:0}}
+    @keyframes piano-press{0%,100%{transform:scaleY(1)}50%{transform:scaleY(0.92);filter:brightness(1.4)}}
+    @keyframes splash-in{0%{transform:scale(0);opacity:0.9}100%{transform:scale(4);opacity:0}}
+    @keyframes snow-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9}100%{transform:translateY(110vh) rotate(360deg);opacity:0.2}}
+    @keyframes confetti-fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+    @keyframes shake-hint{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+    @media(prefers-reduced-motion:no-preference){.camera-shake{animation:camera-shake 0.25s ease-in-out}.screen-flash{animation:screen-flash 0.35s ease-out}}
+    .animate-bkp-pulse{animation:bkp-pulse 2s ease-in-out infinite}
+    .float-score{animation:float-up 1.2s ease-out forwards;pointer-events:none;position:fixed;z-index:80;font-size:2rem;font-weight:900;text-shadow:0 2px 8px rgba(0,0,0,0.5);white-space:nowrap}
+    .key-letter{animation:letter-pop 0.9s cubic-bezier(0.34,1.56,0.64,1) forwards;position:fixed;z-index:70;pointer-events:none;font-weight:900;line-height:1;text-shadow:0 0 60px currentColor,0 4px 20px rgba(0,0,0,0.4)}
+    .combo-display{animation:combo-burst 1.4s ease-out forwards;position:fixed;z-index:75;pointer-events:none;font-weight:900;text-shadow:0 0 40px currentColor,0 0 80px currentColor;white-space:nowrap}
+    .target-ring{animation:target-pulse 1s ease-in-out infinite;position:fixed;pointer-events:all;border-radius:50%;border:4px solid currentColor;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .balloon{animation:balloon-float linear forwards;position:fixed;pointer-events:none;z-index:25;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3))}
+    .animal-friend{position:fixed;pointer-events:all;cursor:pointer;animation:wiggle 2s ease-in-out infinite;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5));z-index:20}
+    .gift-box{animation:gift-bounce 1.2s ease-in-out infinite;position:fixed;pointer-events:all;cursor:pointer;z-index:28;filter:drop-shadow(0 0 20px gold)}
+    .reaction-word{animation:word-pop 0.95s cubic-bezier(0.34,1.56,0.64,1) forwards;position:fixed;z-index:72;pointer-events:none;font-weight:900;text-shadow:0 0 30px currentColor,-2px -2px 0 rgba(0,0,0,0.5),2px 2px 0 rgba(0,0,0,0.5)}
+    .badge-enter{animation:badge-in 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards}
+    .badge-exit{animation:badge-out 0.5s ease-in forwards}
+    .creature-fly{animation:fly-across linear forwards;position:fixed;z-index:22;pointer-events:none;font-size:3.5rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))}
+    .warp-ring{animation:warp-spin 1s ease-out forwards;position:fixed;z-index:76;pointer-events:none;border-radius:50%;border:6px solid currentColor}
+    .piano-key-press{animation:piano-press 0.15s ease-out}
+    .splash-circle{animation:splash-in 0.7s ease-out forwards;position:fixed;pointer-events:none;z-index:11;border-radius:50%}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#3f3f46;border-radius:2px}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@11.3.31/dist/framer-motion.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide-react@0.469.0/dist/umd/lucide-react.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const{useState,useEffect,useRef,useCallback,forwardRef,useImperativeHandle,useContext,createContext,useMemo}=React;
+
+    const _fm=(typeof Motion!=='undefined')?Motion:{};
+    const AnimatePresence=_fm.AnimatePresence||(({children})=>React.createElement(React.Fragment,null,children));
+    const _m=_fm.motion||{};
+    function makeEl(t){return React.forwardRef(function ME({initial,animate,exit,children,...r},ref){const[st,setSt]=useState({...initial,transition:'all 0.3s ease'});useEffect(()=>{requestAnimationFrame(()=>setSt({...animate,transition:'all 0.3s ease'}))},[]);return React.createElement(t,{...r,ref,style:{...(r.style||{}),...st}},children);});}
+    const motion={div:_m.div||makeEl('div'),button:_m.button||makeEl('button')};
+
+    const _lr=(typeof LucideReact!=='undefined')?LucideReact:{};
+    const mkI=d=>({className='w-5 h-5',...p})=><svg {...p} className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d.map((di,i)=><path key={i} d={di}/>)}</svg>;
+    const X=_lr.X||mkI(["M18 6 6 18","M6 6l12 12"]);
+    const Volume2=_lr.Volume2||mkI(["M11 5 6 9H2v6h4l5 4V5z","M19.07 4.93a10 10 0 0 1 0 14.14","M15.54 8.46a5 5 0 0 1 0 7.07"]);
+    const Sun=_lr.Sun||mkI(["M12 2v2","M12 20v2","M4.93 4.93l1.41 1.41","M17.66 17.66l1.41 1.41","M2 12h2","M20 12h2","M6.34 17.66l-1.41 1.41","M19.07 4.93l-1.41 1.41","M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"]);
+    const Settings=_lr.Settings||mkI(["M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z","M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"]);
+    const Clock=_lr.Clock||mkI(["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M12 6v6l4 2"]);
+    const Activity=_lr.Activity||mkI(["M22 12h-4l-3 9L9 3l-3 9H2"]);
+    const Lock=_lr.Lock||mkI(["M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z","M7 11V7a5 5 0 0 1 10 0v4"]);
+    const Users=_lr.Users||mkI(["M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z","M23 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75"]);
+    const Sparkles=_lr.Sparkles||mkI(["M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z","M20 3v4","M22 5h-4","M4 17v2","M5 18H3"]);
+    const Music=_lr.Music||mkI(["M9 18V5l12-2v13","M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6z","M18 13a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]);
+    const Mic=_lr.Mic||mkI(["M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z","M19 10v2a7 7 0 0 1-14 0v-2","M12 19v3","M8 22h8"]);
+    const MonitorPlay=_lr.MonitorPlay||mkI(["M10 7l6 3.5-6 3.5V7z","M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7z","M12 17v4","M8 21h8"]);
+    const BarChart2=_lr.BarChart2||mkI(["M18 20V10","M12 20V4","M6 20v-6"]);
+    const Zap=_lr.Zap||mkI(["M13 2L3 14h9l-1 8 10-12h-9l1-8z"]);
+    const Smartphone=_lr.Smartphone||mkI(["M17 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z","M12 18h.01"]);
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // THEMES
+    // ════════════════════════════════════════════════════════════════════════════
+    const THEMES={
+      SPACE:{id:'space',name:'🚀 Space',bg:'#0a0e27',particleColors:['#ff006e','#00f5ff','#39ff14','#b537f2','#ff6b35','#ffff00'],particleShapes:['circle','star'],weather:'lightning'},
+      OCEAN:{id:'ocean',name:'🌊 Ocean',bg:'#001e36',particleColors:['#00a8ff','#0097e6','#4bcffa','#48dbfb','#ffffff'],particleShapes:['circle','bubble'],weather:'bubbles'},
+      JUNGLE:{id:'jungle',name:'🌿 Jungle',bg:'#0b2b0b',particleColors:['#4cd137','#44bd32','#e1b12c','#fbc531','#8c7ae6'],particleShapes:['circle','leaf'],weather:'petals'},
+      CANDY:{id:'candy',name:'🍭 Candy',bg:'#3a0020',particleColors:['#ff4d4d','#ff9ff3','#feca57','#ff6b9d','#c44dff'],particleShapes:['circle','square','candy'],weather:'candy'},
+      NEON:{id:'neon',name:'⚡ Neon Cyber',bg:'#000000',particleColors:['#ff00ff','#00ffff','#00ff00','#ffff00','#ff0000'],particleShapes:['square','circle'],weather:'lightning'},
+      DISCO:{id:'disco',name:'🪩 Disco Party',bg:'#0d0010',particleColors:['#ff00ff','#00ffff','#ff9900','#ff0066','#00ff66','#ffff00'],particleShapes:['circle','star','square'],weather:'confetti'},
+      WINTER:{id:'winter',name:'❄️ Winter',bg:'#0a1628',particleColors:['#a8d8ff','#c9e8ff','#ffffff','#b0e0e6','#87ceeb'],particleShapes:['circle','star'],weather:'snow'},
+    };
+    const getTC=id=>THEMES[(id||'space').toUpperCase()]||THEMES.SPACE;
+
+    const MODES={
+      FREE_PLAY:{id:'free_play',name:'🎮 Free Play',description:'Tap and type for colorful explosions!'},
+      LEARNING:{id:'learning',name:'📚 Learning',description:'Press keys to see big letters!'},
+      ANIMAL:{id:'animal',name:'🐾 Animal Friends',description:'Cute animals bounce all around!'},
+      MUSIC:{id:'music',name:'🎵 Music Maker',description:'Play the piano keys at the bottom!'},
+      DRAWING:{id:'drawing',name:'🎨 Drawing',description:'Hold and drag to paint rainbow trails!'},
+    };
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // CONTEXT
+    // ════════════════════════════════════════════════════════════════════════════
+    const PPC=createContext(null);
+    function ParentPanelProvider({children}){
+      const ls=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:v}catch{return d}};
+      const li=(k,d)=>{try{return parseInt(localStorage.getItem(k)||d,10)}catch{return d}};
+      const lb=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:v==='true'}catch{return d}};
+      const[isPanelOpen,setIPO]=useState(false);
+      const[isLocked,setIL]=useState(false);
+      const[theme,setTheme]=useState(()=>ls('bkp_t','space'));
+      const[mode,setMode]=useState(()=>ls('bkp_m','free_play'));
+      const[soundEnabled,setSound]=useState(()=>ls('bkp_s','true')!=='false');
+      const[brightness,setBrightness]=useState(()=>li('bkp_b',100));
+      const[reduceMotion,setRM]=useState(()=>lb('bkp_rm',false));
+      const[sessionTime,setSessionTime]=useState(0);
+      const[timeRemaining,setTR]=useState(0);
+      const[particleDensity,setPD]=useState(()=>li('bkp_pd',100));
+      const[musicEnabled,setMusic]=useState(()=>lb('bkp_me',false));
+      const[multiplayer,setMP]=useState(()=>lb('bkp_mp',false));
+      const[surpriseEffects,setSE]=useState(()=>ls('bkp_se','true')!=='false');
+      const[voiceReactions,setVR]=useState(()=>ls('bkp_vr','true')!=='false');
+      const[fpsCap,setFPS]=useState(()=>li('bkp_fps',60));
+      const[audioVisualizer,setAV]=useState(()=>lb('bkp_av',false));
+      const[starsEnabled,setStars]=useState(()=>ls('bkp_st','true')!=='false');
+      const[motionEffectsEnabled,setME]=useState(()=>ls('bkp_me2','true')!=='false');
+      const[rainbowTrail,setRT]=useState(()=>ls('bkp_rt','true')!=='false');
+      const[fireworksEnabled,setFW]=useState(()=>ls('bkp_fw','true')!=='false');
+      const[comboEnabled,setCE]=useState(()=>ls('bkp_ce','true')!=='false');
+      const[targetGame,setTG]=useState(()=>ls('bkp_tg','true')!=='false');
+      const[balloons,setBal]=useState(()=>ls('bkp_bal','true')!=='false');
+      const[ripple,setRip]=useState(()=>ls('bkp_rip','true')!=='false');
+      // NEW
+      const[giftBoxes,setGB]=useState(()=>ls('bkp_gb','true')!=='false');
+      const[weatherFX,setWX]=useState(()=>ls('bkp_wx','true')!=='false');
+      const[flyingCreatures,setFC]=useState(()=>ls('bkp_fc','true')!=='false');
+      const[achievements,setAch]=useState(()=>ls('bkp_ach','true')!=='false');
+      const[reactionWords,setRW]=useState(()=>ls('bkp_rw','true')!=='false');
+      const[pianoKeys,setPK]=useState(()=>ls('bkp_pk','true')!=='false');
+      const[lightningEnabled,setLN]=useState(()=>ls('bkp_ln','true')!=='false');
+      const[warpMode,setWM]=useState(()=>ls('bkp_wm','true')!=='false');
+      const[confettiCannon,setCC]=useState(()=>ls('bkp_cc','true')!=='false');
+
+      useEffect(()=>{
+        try{
+          const pairs={bkp_t:theme,bkp_m:mode,bkp_s:soundEnabled,bkp_b:brightness,bkp_rm:reduceMotion,bkp_pd:particleDensity,bkp_me:musicEnabled,bkp_mp:multiplayer,bkp_se:surpriseEffects,bkp_vr:voiceReactions,bkp_fps:fpsCap,bkp_av:audioVisualizer,bkp_st:starsEnabled,bkp_me2:motionEffectsEnabled,bkp_rt:rainbowTrail,bkp_fw:fireworksEnabled,bkp_ce:comboEnabled,bkp_tg:targetGame,bkp_bal:balloons,bkp_rip:ripple,bkp_gb:giftBoxes,bkp_wx:weatherFX,bkp_fc:flyingCreatures,bkp_ach:achievements,bkp_rw:reactionWords,bkp_pk:pianoKeys,bkp_ln:lightningEnabled,bkp_wm:warpMode,bkp_cc:confettiCannon};
+          Object.entries(pairs).forEach(([k,v])=>localStorage.setItem(k,v));
+        }catch{}
+      },[theme,mode,soundEnabled,brightness,reduceMotion,particleDensity,musicEnabled,multiplayer,surpriseEffects,voiceReactions,fpsCap,audioVisualizer,starsEnabled,motionEffectsEnabled,rainbowTrail,fireworksEnabled,comboEnabled,targetGame,balloons,ripple,giftBoxes,weatherFX,flyingCreatures,achievements,reactionWords,pianoKeys,lightningEnabled,warpMode,confettiCannon]);
+
+      useEffect(()=>{if(sessionTime>0&&!isLocked)setTR(sessionTime*60);},[sessionTime,isLocked]);
+      useEffect(()=>{if(timeRemaining<=0||isLocked)return;const t=setInterval(()=>setTR(p=>{if(p<=1){setIL(true);return 0;}return p-1;}),1000);return()=>clearInterval(t);},[timeRemaining,isLocked]);
+
+      const v={
+        isPanelOpen,openPanel:()=>setIPO(true),closePanel:()=>setIPO(false),
+        isLocked,lockScreen:()=>setIL(true),unlockScreen:()=>setIL(false),
+        theme,setTheme,mode,setMode,
+        soundEnabled,toggleSound:()=>setSound(v=>!v),
+        brightness,setBrightness,
+        reduceMotion,toggleReduceMotion:()=>setRM(v=>!v),
+        sessionTime,setSessionTime,timeRemaining,
+        particleDensity,setParticleDensity:setPD,
+        musicEnabled,toggleMusic:()=>setMusic(v=>!v),
+        multiplayer,toggleMultiplayer:()=>setMP(v=>!v),
+        surpriseEffects,toggleSurpriseEffects:()=>setSE(v=>!v),
+        voiceReactions,toggleVoiceReactions:()=>setVR(v=>!v),
+        fpsCap,setFpsCap:setFPS,
+        audioVisualizer,toggleAudioVisualizer:()=>setAV(v=>!v),
+        starsEnabled,toggleStars:()=>setStars(v=>!v),
+        motionEffectsEnabled,toggleMotionEffects:()=>setME(v=>!v),
+        rainbowTrail,toggleRainbowTrail:()=>setRT(v=>!v),
+        fireworksEnabled,toggleFireworks:()=>setFW(v=>!v),
+        comboEnabled,toggleCombo:()=>setCE(v=>!v),
+        targetGame,toggleTargetGame:()=>setTG(v=>!v),
+        balloons,toggleBalloons:()=>setBal(v=>!v),
+        ripple,toggleRipple:()=>setRip(v=>!v),
+        giftBoxes,toggleGiftBoxes:()=>setGB(v=>!v),
+        weatherFX,toggleWeatherFX:()=>setWX(v=>!v),
+        flyingCreatures,toggleFlyingCreatures:()=>setFC(v=>!v),
+        achievements,toggleAchievements:()=>setAch(v=>!v),
+        reactionWords,toggleReactionWords:()=>setRW(v=>!v),
+        pianoKeys,togglePianoKeys:()=>setPK(v=>!v),
+        lightningEnabled,toggleLightning:()=>setLN(v=>!v),
+        warpMode,toggleWarpMode:()=>setWM(v=>!v),
+        confettiCannon,toggleConfettiCannon:()=>setCC(v=>!v),
+      };
+      return<PPC.Provider value={v}>{children}</PPC.Provider>;
+    }
+    const useParentPanel=()=>useContext(PPC);
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // AUDIO MANAGER
+    // ════════════════════════════════════════════════════════════════════════════
+    const NOTES={a:261.63,s:293.66,d:329.63,f:349.23,g:392,h:440,j:493.88,k:523.25};
+    const NF=Object.values(NOTES);
+    const PIANO_KEYS=[
+      {note:261.63,label:'C',white:true},{note:277.18,label:'C#',white:false},
+      {note:293.66,label:'D',white:true},{note:311.13,label:'D#',white:false},
+      {note:329.63,label:'E',white:true},{note:349.23,label:'F',white:true},
+      {note:369.99,label:'F#',white:false},{note:392,label:'G',white:true},
+      {note:415.3,label:'G#',white:false},{note:440,label:'A',white:true},
+      {note:466.16,label:'A#',white:false},{note:493.88,label:'B',white:true},
+      {note:523.25,label:'C2',white:true},
+    ];
+
+    function useAudioManager(){
+      const cRef=useRef(null),aRef=useRef(null),om=useRef(new Map());
+      const init=useCallback(()=>{if(!cRef.current){try{const AC=window.AudioContext||window.webkitAudioContext;cRef.current=new AC();aRef.current=cRef.current.createAnalyser();aRef.current.fftSize=256;aRef.current.connect(cRef.current.destination);}catch{}}if(cRef.current?.state==='suspended')cRef.current.resume();return{ctx:cRef.current,an:aRef.current};},[]);
+      const _p=(freq,dur,type='sine',xp=0.5,vol=0.3)=>{const{ctx,an}=init();if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain(),pan=ctx.createStereoPanner?.();o.type=type;o.frequency.value=freq;o.connect(g);if(pan){pan.pan.value=xp*2-1;g.connect(pan);pan.connect(an);}else g.connect(an);g.gain.setValueAtTime(vol,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);o.start();o.stop(ctx.currentTime+dur);};
+      const playNote=useCallback((key,sustain=false,xp=0.5)=>{const{ctx,an}=init();if(!ctx)return;const freq=typeof key==='number'?key:(NOTES[key?.toLowerCase()]||NF[Math.floor(Math.random()*NF.length)]);if(sustain&&om.current.has(key))return;const o=ctx.createOscillator(),g=ctx.createGain(),pan=ctx.createStereoPanner?.();o.type='sine';o.frequency.value=freq;o.connect(g);if(pan){pan.pan.value=xp*2-1;g.connect(pan);pan.connect(an);}else g.connect(an);o.start();if(sustain){g.gain.setValueAtTime(0.3,ctx.currentTime);om.current.set(key,{o,g});}else{g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.stop(ctx.currentTime+0.5);}},[init]);
+      const playPianoKey=useCallback((freq,xp=0.5)=>{const{ctx,an}=init();if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain(),pan=ctx.createStereoPanner?.();o.type='triangle';o.frequency.value=freq;o.connect(g);if(pan){pan.pan.value=xp*2-1;g.connect(pan);pan.connect(an);}else g.connect(an);g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.2);o.start();o.stop(ctx.currentTime+1.2);},[init]);
+      const playPop=useCallback((xp=0.5)=>_p(600,0.12,'sine',xp,0.3),[init]);
+      const playFirework=useCallback(()=>{[0,60,110].forEach(d=>{setTimeout(()=>_p(200+Math.random()*700,0.5,'triangle',Math.random(),0.12),d);});},[init]);
+      const playTarget=useCallback(()=>{_p(880,0.18,'sine',0.5,0.4);setTimeout(()=>_p(1320,0.14,'sine',0.5,0.3),80);},[init]);
+      const playGift=useCallback(()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>_p(f,0.3,'sine',0.5,0.25),i*80));},[init]);
+      const playDrum=useCallback((type)=>{const{ctx}=init();if(!ctx)return;if(type==='kick'){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(150,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);g.gain.setValueAtTime(1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.5);}else if(type==='snare'){const buf=ctx.createBuffer(1,ctx.sampleRate*0.1,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);const src=ctx.createBufferSource(),g=ctx.createGain();src.buffer=buf;g.gain.setValueAtTime(0.5,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.1);src.connect(g);g.connect(ctx.destination);src.start();}else{const buf=ctx.createBuffer(1,ctx.sampleRate*0.05,ctx.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*0.5;const src=ctx.createBufferSource(),g=ctx.createGain(),flt=ctx.createBiquadFilter();flt.type='highpass';flt.frequency.value=8000;src.buffer=buf;src.connect(flt);flt.connect(g);g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.05);g.connect(ctx.destination);src.start();}},[init]);
+      const playWarp=useCallback(()=>{const{ctx}=init();if(!ctx)return;const freqs=[261,311,392,523,659,784,1047];freqs.forEach((f,i)=>setTimeout(()=>_p(f,0.4,'sawtooth',0.5,0.1),i*60));},[init]);
+      const speak=useCallback((text)=>{if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(text);u.pitch=1.8;u.rate=1.3;u.volume=1;window.speechSynthesis.speak(u);}},[]);
+      return{initAudio:init,playNote,playPop,playFirework,playTarget,playGift,playDrum,playPianoKey,playWarp,speak,getAnalyser:()=>aRef.current};
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // MOTION DETECTION
+    // ════════════════════════════════════════════════════════════════════════════
+    function useMotionDetection(reduceMotion=false){
+      const[ms,setMs]=useState({intensity:0,type:null,origin:{x:0,y:0},direction:{x:0,y:0},velocity:0,isActive:false});
+      const[perm,setPerm]=useState('unknown');
+      const msr=useRef(ms),lm=useRef({x:0,y:0,time:performance.now()}),lt=useRef(new Map());
+      const upd=useCallback((u)=>{if(reduceMotion)return;const ns={...msr.current,...u,isActive:true,intensity:Math.min(100,Math.max(0,msr.current.intensity*0.7+(u.intensity||0)*0.3))};if(ns.rt)clearTimeout(ns.rt);ns.rt=setTimeout(()=>{msr.current={...msr.current,isActive:false};setMs(msr.current);},150);msr.current=ns;setMs(ns);},[reduceMotion]);
+      const reqPerm=async()=>{if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){try{const p=await DeviceMotionEvent.requestPermission();setPerm(p);return p==='granted';}catch{setPerm('denied');return false;}}else{setPerm('granted');return true;}};
+      useEffect(()=>{if(reduceMotion)return;if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function')setPerm('prompt');else setPerm('granted');
+        const mm=e=>{const n=performance.now(),dt=n-lm.current.time;if(dt<16)return;const dx=e.clientX-lm.current.x,dy=e.clientY-lm.current.y,d=Math.sqrt(dx*dx+dy*dy),v=(d/dt)*1000;upd({type:'mouse',origin:{x:e.clientX,y:e.clientY},direction:{x:dx/(d||1),y:dy/(d||1)},velocity:v,intensity:Math.min(100,v/20)});lm.current={x:e.clientX,y:e.clientY,time:n};};
+        const ts=e=>{const n=performance.now();Array.from(e.changedTouches).forEach(t=>lt.current.set(t.identifier,{x:t.clientX,y:t.clientY,time:n}));};
+        const tm=e=>{const n=performance.now();let mv=0,pt=null,dx=0,dy=0;Array.from(e.changedTouches).forEach(t=>{const l=lt.current.get(t.identifier);if(!l)return;const dt=n-l.time;if(dt<=0)return;const tdx=t.clientX-l.x,tdy=t.clientY-l.y,d=Math.sqrt(tdx*tdx+tdy*tdy),v=(d/dt)*1000;if(v>mv){mv=v;pt=t;dx=tdx;dy=tdy;}lt.current.set(t.identifier,{x:t.clientX,y:t.clientY,time:n});});if(pt&&mv>50){const d=Math.sqrt(dx*dx+dy*dy);upd({type:'touch',origin:{x:pt.clientX,y:pt.clientY},direction:{x:dx/(d||1),y:dy/(d||1)},velocity:mv,intensity:Math.min(100,mv/30)});}};
+        const te=e=>Array.from(e.changedTouches).forEach(t=>lt.current.delete(t.identifier));
+        window.addEventListener('mousemove',mm,{passive:true});window.addEventListener('touchstart',ts,{passive:true});window.addEventListener('touchmove',tm,{passive:true});window.addEventListener('touchend',te,{passive:true});
+        return()=>{window.removeEventListener('mousemove',mm);window.removeEventListener('touchstart',ts);window.removeEventListener('touchmove',tm);window.removeEventListener('touchend',te);};
+      },[reduceMotion,upd]);
+      return[ms,reqPerm,perm];
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // PARTICLE SYSTEM
+    // ════════════════════════════════════════════════════════════════════════════
+    const ParticleSystem=forwardRef(function PS(props,ref){
+      const cvr=useRef(null),pr=useRef([]);
+      const{theme,reduceMotion,particleDensity,fpsCap,brightness}=useParentPanel();
+      const tc=getTC(theme);
+      useEffect(()=>{pr.current=Array.from({length:Math.min(8000,particleDensity*30)},()=>({active:false,x:0,y:0,vx:0,vy:0,color:'#fff',size:5,life:0,maxLife:1,type:'circle',rotation:0,vr:0}));},[particleDensity]);
+      useImperativeHandle(ref,()=>({
+        spawnExplosion(x,y,n=22,ct=null){if(reduceMotion)return;const p=pr.current,c=tc.particleColors,s=tc.particleShapes;let sp=0;for(let i=0;i<p.length&&sp<n;i++){const q=p[i];if(q.active)continue;const a=Math.random()*Math.PI*2,v=Math.random()*280+70;q.active=true;q.x=x;q.y=y;q.vx=Math.cos(a)*v;q.vy=Math.sin(a)*v;q.color=c[Math.floor(Math.random()*c.length)];q.size=Math.random()*14+5;q.life=q.maxLife=Math.random()*2+0.5;q.type=ct||s[Math.floor(Math.random()*s.length)];q.rotation=Math.random()*Math.PI*2;q.vr=(Math.random()-0.5)*14;sp++;}},
+        spawnSpiral(x,y,color='#ff00ff'){if(reduceMotion)return;const p=pr.current;let sp=0;for(let i=0;i<p.length&&sp<80;i++){const q=p[i];if(q.active)continue;const a=(sp/80)*Math.PI*6,r=sp*3,v=sp*1.5+100;q.active=true;q.x=x;q.y=y;q.vx=Math.cos(a)*v;q.vy=Math.sin(a)*v;q.color=`hsl(${(sp/80)*360},100%,60%)`;q.size=Math.random()*8+3;q.life=q.maxLife=Math.random()*2+1;q.type='star';q.rotation=a;q.vr=3;sp++;}},
+        spawnEmojiRain(){if(reduceMotion)return;const p=pr.current;const em=['🌟','⭐','✨','🎉','🎊','🎈','🎁','🐰','🦊','🍪','🦋','🦄','💫','🌈','🎆','🎀','🧸','🐠'];let s=0;for(let i=0;i<p.length&&s<70;i++){const q=p[i];if(q.active)continue;q.active=true;q.x=Math.random()*window.innerWidth;q.y=-60-Math.random()*300;q.vx=(Math.random()-0.5)*70;q.vy=Math.random()*130+60;q.color=em[Math.floor(Math.random()*em.length)];q.size=Math.random()*28+22;q.life=q.maxLife=5;q.type='emoji';q.rotation=Math.random()*Math.PI*2;q.vr=(Math.random()-0.5)*5;s++;}},
+      }));
+      useEffect(()=>{
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d',{alpha:false});let id,lt=performance.now();const fi=1000/fpsCap;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const h2r=h=>{const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);return r?`${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}`:'10,14,39';};
+        const bgR=h2r(tc.bg);
+        const anim=(now)=>{id=requestAnimationFrame(anim);const dt=now-lt;if(dt<fi)return;const ds=Math.min(dt/1000,0.1);lt=now-(dt%fi);
+          if(!reduceMotion&&tc.id!=='neon'){ctx.fillStyle=`rgba(${bgR},0.18)`;ctx.fillRect(0,0,cv.width,cv.height);}else{ctx.fillStyle=tc.bg;ctx.fillRect(0,0,cv.width,cv.height);}
+          const pool=pr.current,grav=tc.id==='space'||tc.id==='disco'||tc.id==='winter'?10:300,fric=0.98;
+          for(let i=0;i<pool.length;i++){const p=pool[i];if(!p.active)continue;p.vy+=grav*ds;p.vx*=fric;p.vy*=fric;p.x+=p.vx*ds;p.y+=p.vy*ds;p.rotation+=p.vr*ds;p.life-=ds;
+            if(p.y>cv.height-p.size&&p.vy>0){p.y=cv.height-p.size;p.vy*=-0.6;p.vx*=0.8;}if(p.life<=0){p.active=false;continue;}
+            ctx.globalAlpha=Math.max(0,p.life/p.maxLife);
+            if(p.type==='emoji'){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.font=`${p.size}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.color,0,0);ctx.restore();}
+            else{ctx.fillStyle=p.color;ctx.shadowBlur=p.type==='star'?12:0;ctx.shadowColor=p.color;if(p.type==='circle'||p.type==='bubble'){ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
+            else if(p.type==='star'){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.beginPath();for(let j=0;j<5;j++){ctx.lineTo(Math.cos((18+j*72)*Math.PI/180)*p.size,-Math.sin((18+j*72)*Math.PI/180)*p.size);ctx.lineTo(Math.cos((54+j*72)*Math.PI/180)*(p.size/2),-Math.sin((54+j*72)*Math.PI/180)*(p.size/2));}ctx.closePath();ctx.fill();ctx.restore();}
+            else{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();}ctx.shadowBlur=0;}
+          }ctx.globalAlpha=1;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[tc,reduceMotion,fpsCap]);
+      return<canvas ref={cvr} style={{position:'absolute',inset:0,width:'100%',height:'100%',filter:`brightness(${brightness}%)`}}/>;
+    });
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // GALAXY BACKGROUND
+    // ════════════════════════════════════════════════════════════════════════════
+    function GalaxyBG(){
+      const{theme,reduceMotion}=useParentPanel();const cvr=useRef(null);
+      useEffect(()=>{
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');let id,t=0;
+        const stars=Array.from({length:160},()=>({x:Math.random(),y:Math.random(),r:Math.random()*1.8+0.3,phase:Math.random()*Math.PI*2,speed:0.5+Math.random()*2}));
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const anim=()=>{id=requestAnimationFrame(anim);t+=0.02;ctx.clearRect(0,0,cv.width,cv.height);for(const s of stars){const a=Math.max(0,0.2+Math.sin(t*s.speed+s.phase)*0.6);ctx.globalAlpha=a;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x*cv.width,s.y*cv.height,s.r,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[]);
+      if(reduceMotion||theme==='candy')return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:2}}/>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // DISCO BALL
+    // ════════════════════════════════════════════════════════════════════════════
+    function DiscoBall(){
+      const{theme,reduceMotion}=useParentPanel();const cvr=useRef(null);
+      useEffect(()=>{
+        if(theme!=='disco'||reduceMotion)return;
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');let id,t=0;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const anim=()=>{id=requestAnimationFrame(anim);t+=0.018;ctx.clearRect(0,0,cv.width,cv.height);const cx=cv.width/2;
+          for(let i=0;i<20;i++){const a=t+(i/20)*Math.PI*2,h=(i/20*360+t*90)%360;const grd=ctx.createLinearGradient(cx,0,cx+Math.cos(a)*cv.width*1.5,Math.sin(a)*cv.height*1.5);grd.addColorStop(0,'transparent');grd.addColorStop(0.35,`hsla(${h},100%,60%,0.1)`);grd.addColorStop(1,'transparent');ctx.fillStyle=grd;ctx.beginPath();ctx.moveTo(cx,0);ctx.arc(cx,0,cv.width*2,a-0.04,a+0.04);ctx.closePath();ctx.fill();}
+          ctx.save();ctx.translate(cv.width/2,75);const bg=ctx.createRadialGradient(-12,-12,4,0,0,50);bg.addColorStop(0,'#fff');bg.addColorStop(0.4,'#ccc');bg.addColorStop(1,'#777');ctx.shadowBlur=30;ctx.shadowColor='#fff';ctx.fillStyle=bg;ctx.beginPath();ctx.arc(0,0,50,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+          for(let r=0;r<5;r++)for(let c=0;c<10;c++){const ta=c/10*Math.PI*2+t*0.5,ti=r/5*Math.PI*0.8-0.4,tx=Math.sin(ta)*Math.cos(ti)*50,ty=Math.sin(ti)*50,tz=Math.cos(ta)*Math.cos(ti);if(tz>0){ctx.fillStyle=`hsla(${(r*45+c*72+t*80)%360},100%,75%,0.9)`;ctx.beginPath();ctx.arc(tx,ty,4.5,0,Math.PI*2);ctx.fill();}}
+          ctx.restore();};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[theme,reduceMotion]);
+      if(theme!=='disco'||reduceMotion)return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:8}}/>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // ⚡ NEW: LIGHTNING CANVAS (space + neon themes)
+    // ════════════════════════════════════════════════════════════════════════════
+    function LightningCanvas(){
+      const{lightningEnabled,theme,isLocked,reduceMotion}=useParentPanel();
+      const cvr=useRef(null);
+      useEffect(()=>{
+        const tc=getTC(theme);
+        if(!lightningEnabled||isLocked||reduceMotion||(tc.weather!=='lightning'))return;
+        const cv=cvr.current;if(!cv)return;
+        const ctx=cv.getContext('2d');
+        let id,bolts=[],nextBolt=2000+Math.random()*3000;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const mkBolt=(x,y,tx,ty,depth=0)=>{if(depth>4)return[];const pts=[{x,y}];let cx=x,cy=y;const steps=6+Math.floor(Math.random()*4);for(let i=0;i<steps;i++){const t=((i+1)/steps);const nx=x+(tx-x)*t+(Math.random()-0.5)*(cv.width*0.08*(1-depth*0.15));const ny=y+(ty-y)*t+(Math.random()-0.5)*(cv.height*0.03);pts.push({x:nx,y:ny});cx=nx;cy=ny;}pts.push({x:tx,y:ty});return pts;};
+        const spawnBolt=()=>{const x=cv.width*0.1+Math.random()*cv.width*0.8;const pts=mkBolt(x,0,x+(Math.random()-0.5)*cv.width*0.2,cv.height*0.5+Math.random()*cv.height*0.3);bolts.push({pts,life:0.8,color:theme==='neon'?'#00ffff':'#ffffff',children:Math.random()>0.5?[mkBolt(pts[Math.floor(pts.length/2)].x,pts[Math.floor(pts.length/2)].y,pts[Math.floor(pts.length/2)].x+(Math.random()-0.5)*100,pts[Math.floor(pts.length/2)].y+100+Math.random()*100)]:[],});};
+        let last=performance.now();
+        const anim=(now)=>{id=requestAnimationFrame(anim);const dt=now-last;last=now;nextBolt-=dt;if(nextBolt<=0){spawnBolt();nextBolt=3000+Math.random()*4000;}
+          ctx.clearRect(0,0,cv.width,cv.height);
+          bolts=bolts.filter(b=>{b.life-=dt/400;if(b.life<=0)return false;const draw=(pts,w)=>{if(!pts||pts.length<2)return;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.strokeStyle=b.color;ctx.lineWidth=w;ctx.globalAlpha=b.life;ctx.shadowBlur=20*b.life;ctx.shadowColor=b.color;ctx.stroke();ctx.shadowBlur=0;};draw(b.pts,2+b.life*2);b.children.forEach(c=>draw(c,1));return true;});
+          ctx.globalAlpha=1;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[lightningEnabled,theme,isLocked,reduceMotion]);
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:11}}/>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // ❄️ NEW: WEATHER EFFECTS (snow, petals, bubbles, candy)
+    // ════════════════════════════════════════════════════════════════════════════
+    function WeatherEffects(){
+      const{weatherFX,theme,isLocked,reduceMotion}=useParentPanel();
+      const[particles,setParticles]=useState([]);
+      const tc=getTC(theme);
+      const weatherType=tc.weather;
+
+      const WEATHER_CONFIG={
+        snow:{emoji:'❄️',alt:['❄️','🌨️','⛄'],size:[20,35],speed:[40,90],drift:30,count:18},
+        petals:{emoji:'🌸',alt:['🌸','🌺','🍀','🌼'],size:[18,30],speed:[30,70],drift:50,count:14},
+        bubbles:{emoji:'🫧',alt:['🫧','💧','🔵'],size:[20,40],speed:[20,50],drift:20,count:12},
+        candy:{emoji:'🍬',alt:['🍬','🍭','🍡','🍩','🧁'],size:[20,32],speed:[50,100],drift:40,count:16},
+        confetti:{emoji:'🎊',alt:['🎊','🎉','🎈','🌟'],size:[18,28],speed:[60,110],drift:60,count:20},
+        lightning:{emoji:null,alt:[],size:[0,0],speed:[0,0],drift:0,count:0},
+      };
+
+      useEffect(()=>{
+        if(!weatherFX||isLocked||reduceMotion||!weatherType||weatherType==='lightning')return;
+        const cfg=WEATHER_CONFIG[weatherType];if(!cfg||!cfg.emoji)return;
+        const spawn=()=>{const id=Date.now()+Math.random();const em=cfg.alt[Math.floor(Math.random()*cfg.alt.length)];const size=cfg.size[0]+Math.random()*(cfg.size[1]-cfg.size[0]);const speed=cfg.speed[0]+Math.random()*(cfg.speed[1]-cfg.speed[0]);const x=Math.random()*100;const dur=(window.innerHeight/speed)*1.3;setParticles(p=>[...p.slice(-cfg.count*2+1),{id,emoji:em,x,size,dur,drift:(Math.random()-0.5)*cfg.drift}]);setTimeout(()=>setParticles(p=>p.filter(i=>i.id!==id)),dur*1000);};
+        spawn();const iv=setInterval(()=>spawn(),800+Math.random()*1500);return()=>clearInterval(iv);
+      },[weatherFX,theme,isLocked,reduceMotion]);
+
+      if(!weatherFX||reduceMotion||!weatherType||weatherType==='lightning')return null;
+      return<div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:9,overflow:'hidden'}}>
+        {particles.map(p=>(
+          <div key={p.id} style={{position:'absolute',top:-60,left:`${p.x}%`,fontSize:p.size,animation:`snow-fall ${p.dur}s linear forwards`,transform:`translateX(${p.drift}px)`,filter:'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'}}>{p.emoji}</div>
+        ))}
+      </div>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🎁 NEW: MYSTERY GIFT BOXES
+    // ════════════════════════════════════════════════════════════════════════════
+    function GiftBoxes(){
+      const{giftBoxes,isLocked,soundEnabled,theme}=useParentPanel();
+      const{playGift,playFirework}=useAudioManager();
+      const[boxes,setBoxes]=useState([]);
+      const GIFTS=['🎁','📦','🎀','🎊','🎉'];
+      const SURPRISES=['🌟🌟🌟','🦄✨🦄','🎆🎇🎆','🐉🔥🐉','👑💎👑'];
+
+      useEffect(()=>{
+        if(!giftBoxes||isLocked)return;
+        const spawn=()=>{
+          if(boxes.length>=2)return;
+          const id=Date.now()+Math.random();
+          const emoji=GIFTS[Math.floor(Math.random()*GIFTS.length)];
+          setBoxes(b=>[...b,{id,emoji,x:15+Math.random()*70,y:20+Math.random()*60}]);
+          setTimeout(()=>setBoxes(b=>b.filter(i=>i.id!==id)),12000);
+        };
+        const iv=setInterval(spawn,8000+Math.random()*5000);
+        spawn();
+        return()=>clearInterval(iv);
+      },[giftBoxes,isLocked]);
+
+      const pop=(box,e)=>{
+        e.stopPropagation();
+        setBoxes(b=>b.filter(i=>i.id!==box.id));
+        if(soundEnabled)playGift();
+        window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:e.clientX,y:e.clientY,count:50,type:'star'}}));
+        window.dispatchEvent(new CustomEvent('bkp-interaction'));
+        window.dispatchEvent(new CustomEvent('bkp-tap',{detail:{x:e.clientX,y:e.clientY}}));
+        // Spawn emoji rain
+        setTimeout(()=>window.dispatchEvent(new CustomEvent('bkp-surprise',{detail:'emoji-rain'})),100);
+        // Show big word
+        const surprise=SURPRISES[Math.floor(Math.random()*SURPRISES.length)];
+        window.dispatchEvent(new CustomEvent('bkp-reaction-word',{detail:{text:surprise,x:e.clientX,y:e.clientY,color:'#ffd700'}}));
+      };
+
+      return<>{boxes.map(b=>(
+        <div key={b.id} className="gift-box" onClick={e=>pop(b,e)}
+          style={{left:`${b.x}%`,top:`${b.y}%`,fontSize:'clamp(3rem,8vw,5rem)',WebkitTapHighlightColor:'transparent'}}>
+          {b.emoji}
+        </div>
+      ))}</>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 💬 NEW: REACTION WORDS (WOW! BOOM! POW!)
+    // ════════════════════════════════════════════════════════════════════════════
+    function ReactionWords(){
+      const{reactionWords,isLocked}=useParentPanel();
+      const[words,setWords]=useState([]);
+      const WORD_SETS=[
+        {text:'WOW!',color:'#ffff00'},{text:'BOOM!',color:'#ff4500'},{text:'POW!',color:'#ff69b4'},
+        {text:'YAY!',color:'#00ff88'},{text:'COOL!',color:'#00ffff'},{text:'NICE!',color:'#ff00ff'},
+        {text:'WHAM!',color:'#ff9900'},{text:'ZAP!',color:'#39ff14'},{text:'POP!',color:'#ff006e'},
+        {text:'WOAH!',color:'#b537f2'},{text:'SUPER!',color:'#ffd700'},{text:'EPIC!',color:'#ff1493'},
+      ];
+      const tapCount=useRef(0);
+
+      useEffect(()=>{
+        if(!reactionWords||isLocked)return;
+        const onTap=e=>{
+          tapCount.current++;
+          // Show word every 3 taps
+          if(tapCount.current%3!==0)return;
+          const{x,y}=e.detail||{x:window.innerWidth/2,y:window.innerHeight/2};
+          const word=WORD_SETS[Math.floor(Math.random()*WORD_SETS.length)];
+          const id=Date.now()+Math.random();
+          setWords(w=>[...w.slice(-4),{id,...word,x,y}]);
+          setTimeout(()=>setWords(w=>w.filter(i=>i.id!==id)),1000);
+        };
+        const onCustom=e=>{
+          const{text,x,y,color}=e.detail;const id=Date.now()+Math.random();
+          setWords(w=>[...w.slice(-4),{id,text,color,x,y}]);
+          setTimeout(()=>setWords(w=>w.filter(i=>i.id!==id)),1000);
+        };
+        window.addEventListener('bkp-tap',onTap);
+        window.addEventListener('bkp-reaction-word',onCustom);
+        return()=>{window.removeEventListener('bkp-tap',onTap);window.removeEventListener('bkp-reaction-word',onCustom);};
+      },[reactionWords,isLocked]);
+
+      return<>{words.map(w=>(
+        <div key={w.id} className="reaction-word" style={{left:w.x,top:w.y,color:w.color,fontSize:'clamp(2rem,6vw,4rem)',WebkitTextStroke:`3px rgba(0,0,0,0.4)`,letterSpacing:'0.05em'}}>{w.text}</div>
+      ))}</>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🐉 NEW: FLYING CREATURES
+    // ════════════════════════════════════════════════════════════════════════════
+    function FlyingCreatures(){
+      const{flyingCreatures,isLocked,reduceMotion}=useParentPanel();
+      const[creature,setCreature]=useState(null);
+      const CREATURES=['🐉','🦄','🚀','🛸','🦋','🦅','🌈','⭐','🐳','🦖','🌟','🐬'];
+
+      useEffect(()=>{
+        if(!flyingCreatures||isLocked||reduceMotion)return;
+        const spawn=()=>{
+          const emoji=CREATURES[Math.floor(Math.random()*CREATURES.length)];
+          const y=15+Math.random()*60;
+          const dur=6+Math.random()*5;
+          const id=Date.now();
+          setCreature({id,emoji,y,dur});
+          setTimeout(()=>setCreature(null),(dur+1)*1000);
+        };
+        spawn();
+        const iv=setInterval(()=>{if(!creature)spawn();},10000+Math.random()*8000);
+        return()=>clearInterval(iv);
+      },[flyingCreatures,isLocked,reduceMotion]);
+
+      if(!creature||reduceMotion)return null;
+      return(
+        <div key={creature.id} className="creature-fly"
+          style={{top:`${creature.y}%`,animationDuration:`${creature.dur}s`,fontSize:'clamp(2.5rem,7vw,4.5rem)'}}
+          onClick={e=>{e.stopPropagation();window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:e.clientX,y:e.clientY,count:40,type:'star'}}));window.dispatchEvent(new CustomEvent('bkp-interaction'));}}>
+          {creature.emoji}
+        </div>
+      );
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🏅 NEW: ACHIEVEMENT BADGES
+    // ════════════════════════════════════════════════════════════════════════════
+    function AchievementBadges(){
+      const{achievements,isLocked,soundEnabled}=useParentPanel();
+      const{speak,playGift}=useAudioManager();
+      const[badge,setBadge]=useState(null);
+      const total=useRef(0);
+      const shown=useRef(new Set());
+
+      const BADGES=[
+        {at:1,emoji:'👶',title:'First Tap!',color:'#ffd700'},
+        {at:10,emoji:'🌟',title:'10 Taps!',color:'#00ffff'},
+        {at:25,emoji:'🔥',title:'On Fire!',color:'#ff6b35'},
+        {at:50,emoji:'💎',title:'Diamond!',color:'#b537f2'},
+        {at:100,emoji:'👑',title:'Champion!',color:'#ffd700'},
+        {at:250,emoji:'🚀',title:'Rocket!',color:'#00ff88'},
+        {at:500,emoji:'🌈',title:'Rainbow!',color:'#ff00ff'},
+        {at:1000,emoji:'🎆',title:'LEGEND!',color:'#ffffff'},
+      ];
+
+      useEffect(()=>{
+        if(!achievements||isLocked)return;
+        const h=()=>{
+          total.current++;
+          const b=BADGES.find(b=>b.at===total.current&&!shown.current.has(b.at));
+          if(b){
+            shown.current.add(b.at);
+            const id=Date.now();setBadge({...b,id});
+            if(soundEnabled){playGift();setTimeout(()=>speak(b.title),200);}
+            setTimeout(()=>setBadge(cb=>cb?.id===id?null:cb),3500);
+          }
+        };
+        window.addEventListener('bkp-interaction',h);return()=>window.removeEventListener('bkp-interaction',h);
+      },[achievements,isLocked,soundEnabled,speak,playGift]);
+
+      if(!badge)return null;
+      return(
+        <div className="badge-enter" style={{position:'fixed',right:16,top:'50%',transform:'translateY(-50%)',zIndex:90,background:'rgba(0,0,0,0.85)',backdropFilter:'blur(16px)',border:`3px solid ${badge.color}`,borderRadius:20,padding:'16px 20px',color:'#fff',display:'flex',flexDirection:'column',alignItems:'center',gap:6,minWidth:140,boxShadow:`0 0 30px ${badge.color}66`}}>
+          <div style={{fontSize:48}}>{badge.emoji}</div>
+          <div style={{fontWeight:900,fontSize:14,color:badge.color,textAlign:'center',letterSpacing:'0.1em',textTransform:'uppercase'}}>{badge.title}</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,0.5)'}}>Achievement unlocked!</div>
+        </div>
+      );
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌀 NEW: WARP BURST (every 50 taps)
+    // ════════════════════════════════════════════════════════════════════════════
+    function WarpBurst(){
+      const{warpMode,isLocked,soundEnabled}=useParentPanel();
+      const{playWarp}=useAudioManager();
+      const pRef=useRef(null); // passed from parent
+      const[rings,setRings]=useState([]);
+      const tapCount=useRef(0);
+
+      useEffect(()=>{
+        if(!warpMode||isLocked)return;
+        const h=e=>{
+          tapCount.current++;
+          if(tapCount.current%50!==0)return;
+          const cx=window.innerWidth/2,cy=window.innerHeight/2;
+          if(soundEnabled)playWarp();
+          // Spawn multiple warp rings
+          const newRings=Array.from({length:5},(_,i)=>({id:Date.now()+i,color:`hsl(${i*72},100%,60%)`,size:i*60+60,delay:i*0.08}));
+          setRings(newRings);
+          setTimeout(()=>setRings([]),1200);
+          // Massive spiral particle burst
+          window.dispatchEvent(new CustomEvent('bkp-warp-burst',{detail:{x:cx,y:cy}}));
+          window.dispatchEvent(new CustomEvent('bkp-reaction-word',{detail:{text:'WARP! 🌀',x:cx,y:cy-80,color:'#00ffff'}}));
+        };
+        window.addEventListener('bkp-tap',h);return()=>window.removeEventListener('bkp-tap',h);
+      },[warpMode,isLocked,soundEnabled,playWarp]);
+
+      return<>{rings.map(r=>(
+        <div key={r.id} className="warp-ring" style={{left:'50%',top:'50%',width:r.size,height:r.size,marginLeft:-r.size/2,marginTop:-r.size/2,color:r.color,borderColor:r.color,animationDelay:`${r.delay}s`,boxShadow:`0 0 20px ${r.color}`}}/>
+      ))}</>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🎹 NEW: ON-SCREEN PIANO KEYS (music mode)
+    // ════════════════════════════════════════════════════════════════════════════
+    function PianoKeyboard(){
+      const{mode,isLocked,soundEnabled,pianoKeys}=useParentPanel();
+      const{playPianoKey,initAudio}=useAudioManager();
+      const[pressed,setPressed]=useState(new Set());
+
+      if(mode!=='music'||!pianoKeys||isLocked)return null;
+
+      const whites=PIANO_KEYS.filter(k=>k.white);
+      const blacks=PIANO_KEYS.filter(k=>!k.white);
+
+      const playKey=(key,i)=>{
+        if(soundEnabled){initAudio();playPianoKey(key.note,i/whites.length);}
+        setPressed(p=>{const np=new Set(p);np.add(key.note);return np;});
+        setTimeout(()=>setPressed(p=>{const np=new Set(p);np.delete(key.note);return np;}),300);
+        window.dispatchEvent(new CustomEvent('bkp-interaction'));
+        window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:(i/whites.length)*window.innerWidth,y:window.innerHeight-100,count:12,type:'star'}}));
+      };
+
+      // Black key positions relative to white keys
+      const blackPositions={'C#':1,'D#':2,'F#':4,'G#':5,'A#':6};
+
+      return(
+        <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:35,height:140,pointerEvents:'all',display:'flex',flexDirection:'column'}}>
+          {/* Label */}
+          <div style={{textAlign:'center',color:'rgba(255,255,255,0.6)',fontSize:13,fontWeight:700,letterSpacing:'0.2em',paddingBottom:4,textShadow:'0 2px 8px rgba(0,0,0,0.5)'}}>🎹 TAP THE KEYS!</div>
+          <div style={{position:'relative',flex:1,display:'flex',paddingBottom:4}}>
+            {/* White keys */}
+            {whites.map((key,i)=>(
+              <div key={key.label} onPointerDown={e=>{e.preventDefault();playKey(key,i);}}
+                style={{flex:1,background:pressed.has(key.note)?'#ffd700':'rgba(255,255,255,0.92)',border:'2px solid rgba(0,0,0,0.3)',borderRadius:'0 0 10px 10px',cursor:'pointer',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:6,fontSize:11,fontWeight:700,color:'#333',transition:'background 0.1s',boxShadow:pressed.has(key.note)?'0 0 20px #ffd700':'0 4px 8px rgba(0,0,0,0.3)',WebkitTapHighlightColor:'transparent'}}>
+                {key.label}
+              </div>
+            ))}
+            {/* Black keys */}
+            {whites.map((wk,i)=>{
+              const noteMap={'C':'C#','D':'D#','F':'F#','G':'G#','A':'A#'};
+              const blackNote=noteMap[wk.label];if(!blackNote)return null;
+              const blackKey=PIANO_KEYS.find(k=>k.label===blackNote);if(!blackKey)return null;
+              return(
+                <div key={blackKey.label} onPointerDown={e=>{e.preventDefault();playKey(blackKey,i);}}
+                  style={{position:'absolute',left:`${(i/whites.length)*100+100/whites.length/2}%`,top:0,width:`${80/whites.length}%`,height:'62%',background:pressed.has(blackKey.note)?'#b537f2':'#1a1a2e',border:'2px solid rgba(255,255,255,0.1)',borderRadius:'0 0 8px 8px',cursor:'pointer',zIndex:2,transform:'translateX(-50%)',boxShadow:pressed.has(blackKey.note)?'0 0 20px #b537f2':'0 4px 12px rgba(0,0,0,0.6)',transition:'background 0.1s',WebkitTapHighlightColor:'transparent'}}/>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🎊 NEW: CONFETTI CANNON (long press / hold)
+    // ════════════════════════════════════════════════════════════════════════════
+    function ConfettiCannon(){
+      const{confettiCannon,isLocked,reduceMotion}=useParentPanel();
+      const cvr=useRef(null);
+      useEffect(()=>{
+        if(!confettiCannon||isLocked||reduceMotion)return;
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');
+        let pieces=[],id,firing=false,fireX=0,fireY=0;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const fire=(x,y)=>{for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,sp=200+Math.random()*400;pieces.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-200,color:`hsl(${Math.random()*360},100%,60%)`,w:8+Math.random()*8,h:4+Math.random()*4,life:1,rot:Math.random()*Math.PI*2,vr:(Math.random()-0.5)*15});}};
+        let holdTimer=null,holdX=0,holdY=0;
+        const onDown=e=>{holdX=e.clientX||e.touches?.[0]?.clientX||0;holdY=e.clientY||e.touches?.[0]?.clientY||0;holdTimer=setTimeout(()=>{firing=true;fire(holdX,holdY);},500);};
+        const onUp=()=>{clearTimeout(holdTimer);firing=false;};
+        window.addEventListener('pointerdown',onDown);window.addEventListener('pointerup',onUp);
+        const onFire=e=>fire(e.detail.x,e.detail.y);window.addEventListener('bkp-confetti',onFire);
+        const anim=(now)=>{id=requestAnimationFrame(anim);ctx.clearRect(0,0,cv.width,cv.height);
+          pieces=pieces.filter(p=>{p.vx*=0.97;p.vy+=400*0.016;p.x+=p.vx*0.016;p.y+=p.vy*0.016;p.rot+=p.vr*0.016;p.life-=0.012;if(p.life<=0)return false;ctx.save();ctx.globalAlpha=p.life;ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();return true;});
+          ctx.globalAlpha=1;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);window.removeEventListener('pointerdown',onDown);window.removeEventListener('pointerup',onUp);window.removeEventListener('bkp-confetti',onFire);cancelAnimationFrame(id);clearTimeout(holdTimer);};
+      },[confettiCannon,isLocked,reduceMotion]);
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:17}}/>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌈 COLOR SPLASH (tap spawns expanding color circle)
+    // ════════════════════════════════════════════════════════════════════════════
+    function ColorSplash(){
+      const{isLocked,theme}=useParentPanel();
+      const[splashes,setSplashes]=useState([]);
+      useEffect(()=>{
+        if(isLocked)return;
+        const h=e=>{
+          if(Math.random()>0.15)return; // 15% chance
+          const tc=getTC(theme);const color=tc.particleColors[Math.floor(Math.random()*tc.particleColors.length)];
+          const id=Date.now()+Math.random();
+          setSplashes(s=>[...s.slice(-4),{id,x:e.detail?.x||e.clientX||window.innerWidth/2,y:e.detail?.y||e.clientY||window.innerHeight/2,color}]);
+          setTimeout(()=>setSplashes(s=>s.filter(i=>i.id!==id)),750);
+        };
+        window.addEventListener('bkp-tap',h);return()=>window.removeEventListener('bkp-tap',h);
+      },[isLocked,theme]);
+      return<>{splashes.map(s=>(
+        <div key={s.id} className="splash-circle" style={{left:s.x,top:s.y,width:80,height:80,marginLeft:-40,marginTop:-40,background:`radial-gradient(circle, ${s.color}88, transparent)`,boxShadow:`0 0 40px ${s.color}44`}}/>
+      ))}</>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // ════════════ EXISTING COMPONENTS (condensed) ════════════════════════════
+    // ════════════════════════════════════════════════════════════════════════════
+
+    function RainbowTrail(){
+      const{rainbowTrail,isLocked,reduceMotion}=useParentPanel();const cvr=useRef(null);
+      useEffect(()=>{
+        if(!rainbowTrail||isLocked||reduceMotion)return;
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');let id,hue=0,pts=[];
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const add=(x,y)=>{pts.push({x,y,hue:hue%360,size:Math.random()*7+3,life:1,vx:(Math.random()-0.5)*60,vy:(Math.random()-0.5)*60-50});if(pts.length>280)pts.splice(0,pts.length-280);};
+        const mm=e=>{hue+=4;add(e.clientX,e.clientY);};const tm=e=>{Array.from(e.touches).forEach(t=>{hue+=6;add(t.clientX,t.clientY);});};
+        window.addEventListener('mousemove',mm,{passive:true});window.addEventListener('touchmove',tm,{passive:true});
+        const anim=()=>{id=requestAnimationFrame(anim);ctx.clearRect(0,0,cv.width,cv.height);pts=pts.filter(p=>p.life>0);for(const p of pts){p.life-=0.035;p.x+=p.vx*0.016;p.y+=p.vy*0.016;p.vy+=38*0.016;ctx.globalAlpha=p.life*0.85;ctx.shadowBlur=14;ctx.shadowColor=`hsl(${p.hue},100%,60%)`;ctx.fillStyle=`hsl(${p.hue},100%,65%)`;ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;ctx.shadowBlur=0;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);window.removeEventListener('mousemove',mm);window.removeEventListener('touchmove',tm);cancelAnimationFrame(id);};
+      },[rainbowTrail,isLocked,reduceMotion]);
+      if(!rainbowTrail||reduceMotion)return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:15}}/>;
+    }
+
+    function FireworksSystem(){
+      const{fireworksEnabled,isLocked,reduceMotion,soundEnabled,theme}=useParentPanel();const{playFirework}=useAudioManager();const cvr=useRef(null);
+      useEffect(()=>{
+        if(!fireworksEnabled||isLocked||reduceMotion)return;
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');const tc=getTC(theme);
+        let rockets=[],particles=[],id;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const launch=()=>{const x=window.innerWidth*0.1+Math.random()*window.innerWidth*0.8,ty=window.innerHeight*0.08+Math.random()*window.innerHeight*0.38,color=tc.particleColors[Math.floor(Math.random()*tc.particleColors.length)];rockets.push({x,y:window.innerHeight+20,ty,vx:(Math.random()-0.5)*2.5,vy:-Math.random()*9-11,trail:[],color});if(soundEnabled)playFirework();};
+        const burst=(x,y,color)=>{const n=70+Math.floor(Math.random()*40);for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,sp=Math.random()*320+90;particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,color,size:Math.random()*4+1.5,life:1,type:Math.random()>0.4?'circle':'star'});}for(let i=0;i<24;i++){const a=i/24*Math.PI*2,sp=170;particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,color:'#fff',size:2,life:1.3,type:'circle'});}};
+        const anim=()=>{id=requestAnimationFrame(anim);const dt=0.016;ctx.clearRect(0,0,cv.width,cv.height);
+          rockets=rockets.filter(r=>{r.x+=r.vx;r.y+=r.vy;r.trail.push({x:r.x,y:r.y});if(r.trail.length>14)r.trail.shift();for(let i=0;i<r.trail.length;i++){ctx.globalAlpha=(i/r.trail.length)*0.65;ctx.fillStyle=r.color;ctx.beginPath();ctx.arc(r.trail[i].x,r.trail[i].y,2.5*(i/r.trail.length),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.shadowBlur=8;ctx.shadowColor=r.color;ctx.beginPath();ctx.arc(r.x,r.y,3.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if(r.y<=r.ty){burst(r.x,r.y,r.color);return false;}return r.y>-50;});
+          particles=particles.filter(p=>{p.vx*=0.965;p.vy*=0.965;p.vy+=55*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt*0.75;if(p.life<=0)return false;ctx.globalAlpha=p.life;ctx.shadowBlur=8;ctx.shadowColor=p.color;ctx.fillStyle=p.color;if(p.type==='circle'){ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}else{ctx.save();ctx.translate(p.x,p.y);ctx.beginPath();for(let j=0;j<5;j++){ctx.lineTo(Math.cos((18+j*72)*Math.PI/180)*p.size,-Math.sin((18+j*72)*Math.PI/180)*p.size);ctx.lineTo(Math.cos((54+j*72)*Math.PI/180)*(p.size/2),-Math.sin((54+j*72)*Math.PI/180)*(p.size/2));}ctx.closePath();ctx.fill();ctx.restore();}return true;});ctx.globalAlpha=1;ctx.shadowBlur=0;};
+        id=requestAnimationFrame(anim);
+        const iv=setInterval(()=>{if(rockets.length<3)launch();},3500+Math.random()*2500);
+        const onFW=()=>launch();window.addEventListener('bkp-firework',onFW);
+        return()=>{window.removeEventListener('resize',resize);window.removeEventListener('bkp-firework',onFW);cancelAnimationFrame(id);clearInterval(iv);};
+      },[fireworksEnabled,isLocked,reduceMotion,soundEnabled,theme]);
+      if(!fireworksEnabled||reduceMotion)return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:12}}/>;
+    }
+
+    function RippleRings(){
+      const{ripple,isLocked,theme}=useParentPanel();const cvr=useRef(null);
+      useEffect(()=>{
+        if(!ripple||isLocked)return;const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');
+        let rings=[],id;const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const add=(x,y)=>{const tc=getTC(theme),color=tc.particleColors[Math.floor(Math.random()*tc.particleColors.length)];rings.push({x,y,r:0,maxR:170+Math.random()*130,life:1,color,w:3+Math.random()*4});};
+        const onP=e=>add(e.clientX,e.clientY);window.addEventListener('pointerdown',onP);
+        const anim=()=>{id=requestAnimationFrame(anim);ctx.clearRect(0,0,cv.width,cv.height);rings=rings.filter(r=>{r.r+=5;r.life-=0.022;if(r.life<=0)return false;const pg=r.r/r.maxR;ctx.globalAlpha=r.life*(1-pg*0.7);ctx.strokeStyle=r.color;ctx.lineWidth=r.w*(1-pg*0.5);ctx.shadowBlur=18;ctx.shadowColor=r.color;ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.stroke();return true;});ctx.globalAlpha=1;ctx.shadowBlur=0;};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);window.removeEventListener('pointerdown',onP);cancelAnimationFrame(id);};
+      },[ripple,isLocked,theme]);
+      if(!ripple)return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:14}}/>;
+    }
+
+    function RainbowWave(){
+      const cvr=useRef(null);
+      useEffect(()=>{
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');let waves=[],id;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const addWave=()=>waves.push({x:-120,hue:Math.random()*360,speed:5+Math.random()*5});
+        window.addEventListener('bkp-surprise',e=>{if(e.detail==='color-wave')addWave();});window.addEventListener('bkp-rainbow-wave',addWave);
+        const anim=()=>{id=requestAnimationFrame(anim);ctx.clearRect(0,0,cv.width,cv.height);waves=waves.filter(w=>{w.x+=w.speed;if(w.x>cv.width+220)return false;const g=ctx.createLinearGradient(w.x-150,0,w.x+150,0);g.addColorStop(0,'transparent');g.addColorStop(0.2,`hsla(${w.hue},100%,70%,0.22)`);g.addColorStop(0.5,`hsla(${(w.hue+60)%360},100%,70%,0.32)`);g.addColorStop(0.8,`hsla(${(w.hue+120)%360},100%,70%,0.22)`);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(w.x-150,0,300,cv.height);return true;});};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[]);
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:13}}/>;
+    }
+
+    function KeyLetterPop(){
+      const{mode,isLocked}=useParentPanel();const{speak}=useAudioManager();
+      const[letters,setL]=useState([]);
+      const animals={a:'🐊',b:'🐻',c:'🐱',d:'🐶',e:'🐘',f:'🦊',g:'🦒',h:'🦔',i:'🦋',j:'🐧',k:'🦁',l:'🦁',m:'🐒',n:'🐍',o:'🦉',p:'🐼',q:'🐧',r:'🐰',s:'🐍',t:'🐢',u:'🦄',v:'🦅',w:'🐺',x:'🦎',y:'🦋',z:'🦓'};
+      const COLS=['#ff006e','#00f5ff','#39ff14','#b537f2','#ff6b35','#ffff00','#ff9ff3','#feca57'];
+      useEffect(()=>{
+        const h=e=>{if(e.repeat||isLocked)return;const k=e.key;if(k.length>2)return;const id=Date.now()+Math.random(),color=COLS[Math.floor(Math.random()*COLS.length)];const x=15+Math.random()*70,y=15+Math.random()*60;let disp=k.toUpperCase();if(mode==='animal'&&animals[k.toLowerCase()])disp=animals[k.toLowerCase()];if(mode==='learning')speak(k.toUpperCase());setL(l=>[...l.slice(-4),{id,disp,x,y,color}]);setTimeout(()=>setL(l=>l.filter(i=>i.id!==id)),900);};
+        window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h);
+      },[mode,isLocked,speak]);
+      return<>{letters.map(l=><div key={l.id} className="key-letter" style={{left:`${l.x}%`,top:`${l.y}%`,fontSize:'min(20vw,160px)',color:l.color,WebkitTextStroke:'3px rgba(0,0,0,0.25)'}}>{l.disp}</div>)}</>;
+    }
+
+    function ComboSystem(){
+      const{comboEnabled,isLocked,soundEnabled}=useParentPanel();const{speak,playFirework}=useAudioManager();
+      const[scores,setScores]=useState([]);const[comboPop,setComboPop]=useState(null);
+      const cRef=useRef(0),tRef=useRef(null);
+      const MS=[{n:10,text:'🔥 10 COMBO!',color:'#ff6b35'},{n:25,text:'⚡ 25 COMBO!',color:'#ffff00'},{n:50,text:'🌈 50 COMBO!!',color:'#ff00ff'},{n:100,text:'🎆 100 COMBO!!!',color:'#00ffff'},{n:200,text:'🚀 200 MEGA COMBO!!!!',color:'#ffffff'}];
+      useEffect(()=>{
+        if(!comboEnabled||isLocked)return;
+        const h=e=>{const{x,y}=e.detail||{x:window.innerWidth/2,y:window.innerHeight/2};cRef.current++;
+          const pts=cRef.current>=50?50:cRef.current>=25?25:cRef.current>=10?15:10;
+          const color=cRef.current>=50?'#ff00ff':cRef.current>=25?'#ffff00':cRef.current>=10?'#ff6b35':'#fff';
+          const id=Date.now()+Math.random();setScores(s=>[...s.slice(-6),{id,text:`+${pts}`,x,y,color}]);setTimeout(()=>setScores(s=>s.filter(i=>i.id!==id)),1200);
+          if(tRef.current)clearTimeout(tRef.current);tRef.current=setTimeout(()=>{cRef.current=0;},2200);
+          const ms=MS.find(m=>m.n===cRef.current);if(ms){const cid=Date.now();setComboPop({id:cid,text:ms.text,color:ms.color});setTimeout(()=>setComboPop(c=>c?.id===cid?null:c),1500);if(soundEnabled){speak(ms.text.replace(/[^a-zA-Z0-9! ]/g,''));playFirework();}window.dispatchEvent(new CustomEvent('bkp-firework'));window.dispatchEvent(new CustomEvent('bkp-rainbow-wave'));}};
+        window.addEventListener('bkp-tap',h);return()=>{window.removeEventListener('bkp-tap',h);if(tRef.current)clearTimeout(tRef.current);};
+      },[comboEnabled,isLocked,soundEnabled,speak,playFirework]);
+      return<>{scores.map(s=><div key={s.id} className="float-score" style={{left:s.x,top:s.y-30,color:s.color}}>{s.text}</div>)}
+        {comboPop&&<div className="combo-display" style={{left:'50%',top:'33%',fontSize:'clamp(2rem,7vw,4.5rem)',color:comboPop.color,letterSpacing:'0.04em'}}>{comboPop.text}</div>}
+      </>;
+    }
+
+    function TargetGame(){
+      const{targetGame,isLocked,soundEnabled,theme}=useParentPanel();const{playTarget}=useAudioManager();
+      const[targets,setTargets]=useState([]);
+      useEffect(()=>{
+        if(!targetGame||isLocked)return;
+        const spawn=()=>setTargets(t=>{if(t.length>=4)return t;const id=Date.now()+Math.random(),tc=getTC(theme),color=tc.particleColors[Math.floor(Math.random()*tc.particleColors.length)];const emojis=['🎯','🌟','💎','🏆','⭐','🎪','💥','🔮','🎈','🍭'];return[...t,{id,x:8+Math.random()*82,y:12+Math.random()*68,color,size:50+Math.floor(Math.random()*45),emoji:emojis[Math.floor(Math.random()*emojis.length)]}];});
+        const iv=setInterval(spawn,3000+Math.random()*2500);spawn();return()=>clearInterval(iv);
+      },[targetGame,isLocked,theme]);
+      useEffect(()=>{if(!targetGame||isLocked)return;const iv=setInterval(()=>setTargets(t=>t.slice(0,-1)),6500);return()=>clearInterval(iv);},[targetGame,isLocked]);
+      const pop=(t,e)=>{e.stopPropagation();if(soundEnabled)playTarget();window.dispatchEvent(new CustomEvent('bkp-tap',{detail:{x:e.clientX,y:e.clientY}}));window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:e.clientX,y:e.clientY,count:35,type:'star'}}));setTargets(p=>p.filter(i=>i.id!==t.id));};
+      return<>{targets.map(t=><div key={t.id} className="target-ring" onClick={e=>pop(t,e)} style={{left:`${t.x}%`,top:`${t.y}%`,width:t.size,height:t.size,color:t.color,zIndex:30,fontSize:t.size*0.55,boxShadow:`0 0 ${t.size/2}px ${t.color},0 0 ${t.size}px ${t.color}40`}}><span>{t.emoji}</span></div>)}</>;
+    }
+
+    function BalloonTrail(){
+      const{balloons,isLocked,reduceMotion}=useParentPanel();const[bals,setBals]=useState([]);
+      const EM=['🎈','🎀','🎊','💝','🌸','⭐','💫','🦋','🌈','🎆','🌟','🎉'];
+      useEffect(()=>{
+        if(!balloons||isLocked||reduceMotion)return;
+        const h=e=>{if(Math.random()>0.3)return;const id=Date.now()+Math.random(),emoji=EM[Math.floor(Math.random()*EM.length)],x=(e.clientX||window.innerWidth/2),dur=2.5+Math.random()*3;setBals(b=>[...b.slice(-10),{id,emoji,x,dur}]);setTimeout(()=>setBals(b=>b.filter(i=>i.id!==id)),dur*1000);};
+        window.addEventListener('bkp-interaction',h);return()=>window.removeEventListener('bkp-interaction',h);
+      },[balloons,isLocked,reduceMotion]);
+      return<>{bals.map(b=><div key={b.id} className="balloon" style={{left:b.x-20,bottom:-60,fontSize:'2.8rem',animationDuration:`${b.dur}s`}}>{b.emoji}</div>)}</>;
+    }
+
+    function BouncingAnimals(){
+      const{mode,isLocked,reduceMotion}=useParentPanel();const[animals,setAnimals]=useState([]);
+      const ALL=['🐶','🐱','🐰','🦊','🐼','🐨','🦁','🐯','🐸','🦋','🐠','🦄','🐧','🦒','🐙','🐬','🦖','🐳'];
+      useEffect(()=>{
+        if(isLocked||reduceMotion)return;
+        const n=mode==='animal'?9:3;
+        const a=Array.from({length:n},(_,i)=>({id:i,emoji:ALL[Math.floor(Math.random()*ALL.length)],x:Math.random()*80+5,y:Math.random()*65+10,vx:(Math.random()-0.5)*1.5*(mode==='animal'?1.5:0.7),vy:(Math.random()-0.5)*1.5*(mode==='animal'?1.5:0.7),size:mode==='animal'?60:38}));
+        setAnimals(a);let fr;
+        const upd=()=>{fr=requestAnimationFrame(upd);setAnimals(p=>p.map(a=>{let{x,y,vx,vy}=a;x+=vx;y+=vy;if(x<2||x>90){vx*=-1;}if(y<2||y>82){vy*=-1;}return{...a,x,y,vx,vy};}));};
+        fr=requestAnimationFrame(upd);return()=>cancelAnimationFrame(fr);
+      },[mode,isLocked,reduceMotion]);
+      return<>{animals.map(a=><div key={a.id} className="animal-friend" onClick={e=>{e.stopPropagation();window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:e.clientX,y:e.clientY,count:28,type:'circle'}}));window.dispatchEvent(new CustomEvent('bkp-interaction'));}} style={{left:`${a.x}%`,top:`${a.y}%`,fontSize:a.size,animationDelay:`${a.id*0.35}s`}}>{a.emoji}</div>)}</>;
+    }
+
+    function DrawingMode(){
+      const{mode,isLocked}=useParentPanel();const cvr=useRef(null);const drawing=useRef(false),last=useRef(null),hue=useRef(0);
+      useEffect(()=>{
+        if(mode!=='drawing'||isLocked)return;
+        const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const start=(x,y)=>{drawing.current=true;last.current={x,y};};
+        const draw=(x,y)=>{if(!drawing.current||!last.current)return;hue.current=(hue.current+2)%360;ctx.beginPath();ctx.moveTo(last.current.x,last.current.y);ctx.lineTo(x,y);ctx.strokeStyle=`hsl(${hue.current},100%,60%)`;ctx.lineWidth=9+Math.sin(hue.current*0.1)*5;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=18;ctx.shadowColor=`hsl(${hue.current},100%,60%)`;ctx.stroke();ctx.shadowBlur=0;last.current={x,y};};
+        const end=()=>{drawing.current=false;last.current=null;};
+        cv.addEventListener('mousedown',e=>start(e.clientX,e.clientY));cv.addEventListener('mousemove',e=>draw(e.clientX,e.clientY));cv.addEventListener('mouseup',end);cv.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY);},{passive:true});cv.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];draw(t.clientX,t.clientY);},{passive:false});cv.addEventListener('touchend',end);
+        window.addEventListener('bkp-clear',()=>ctx.clearRect(0,0,cv.width,cv.height));
+        return()=>window.removeEventListener('resize',resize);
+      },[mode,isLocked]);
+      if(mode!=='drawing')return null;
+      return<>
+        <canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:16,cursor:'crosshair',pointerEvents:'all'}}/>
+        <div style={{position:'fixed',bottom:16,left:'50%',transform:'translateX(-50%)',zIndex:60}}>
+          <button onClick={()=>window.dispatchEvent(new CustomEvent('bkp-clear'))} style={{padding:'10px 28px',borderRadius:40,background:'rgba(255,255,255,0.2)',backdropFilter:'blur(10px)',border:'2px solid rgba(255,255,255,0.4)',color:'#fff',fontWeight:800,fontSize:17,cursor:'pointer'}}>🗑️ Clear Canvas</button>
+        </div>
+        <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:5,color:'rgba(255,255,255,0.12)',fontSize:'clamp(2rem,6vw,4rem)',fontWeight:900,pointerEvents:'none',textAlign:'center',whiteSpace:'nowrap'}}>🎨 Draw here!</div>
+      </>;
+    }
+
+    function ScoreDisplay(){
+      const{isLocked,isPanelOpen}=useParentPanel();const[total,setT]=useState(0);
+      useEffect(()=>{const h=()=>setT(n=>n+1);window.addEventListener('bkp-interaction',h);return()=>window.removeEventListener('bkp-interaction',h);},[]);
+      if(isLocked||isPanelOpen||total===0)return null;
+      const star=total>=500?'🏆':total>=200?'🌟':total>=100?'⭐':total>=50?'✨':'💫';
+      return<div style={{position:'fixed',top:12,right:16,zIndex:35,pointerEvents:'none',background:'rgba(0,0,0,0.45)',backdropFilter:'blur(10px)',borderRadius:40,padding:'6px 18px',border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',gap:6}}><span style={{fontSize:20}}>{star}</span><span style={{color:'#fff',fontWeight:900,fontSize:18,textShadow:'0 0 12px rgba(255,255,255,0.6)'}}>{total}</span></div>;
+    }
+
+    function FallingStars({theme,isEnabled}){
+      const cvr=useRef(null),sr=useRef([]);const tc=getTC(theme);
+      useEffect(()=>{sr.current=Array.from({length:200},()=>({active:false,x:0,y:0,vx:0,vy:0,size:0,rotation:0,vr:0,color:'',life:0,maxLife:1}));},[]);
+      useEffect(()=>{
+        const cv=cvr.current;if(!cv||!isEnabled)return;const ctx=cv.getContext('2d');let id,last=performance.now(),st=0;
+        const resize=()=>{cv.width=window.innerWidth;cv.height=window.innerHeight;};resize();window.addEventListener('resize',resize);
+        const spawn=()=>{const s=sr.current.find(s=>!s.active);if(!s)return;s.active=true;s.x=Math.random()*cv.width;s.y=-20;s.vx=(Math.random()-0.5)*55;s.vy=Math.random()*55+55;s.size=Math.random()*4+2;s.rotation=Math.random()*Math.PI*2;s.vr=(Math.random()-0.5)*5;s.color=tc.particleColors[Math.floor(Math.random()*tc.particleColors.length)];s.maxLife=Math.random()*3+5;s.life=s.maxLife;};
+        const anim=(now)=>{id=requestAnimationFrame(anim);const dt=Math.min((now-last)/1000,0.1);last=now;ctx.clearRect(0,0,cv.width,cv.height);st+=dt;if(st>Math.random()*0.25+0.12){spawn();st=0;}
+          for(const s of sr.current){if(!s.active)continue;s.vy+=155*dt;s.x+=s.vx*dt;s.y+=s.vy*dt;s.rotation+=s.vr*dt;s.life-=dt;if(s.y>cv.height-s.size&&s.vy>0){s.y=cv.height-s.size;s.vy*=-0.6;s.vx*=0.8;}if((s.x<s.size&&s.vx<0)||(s.x>cv.width-s.size&&s.vx>0))s.vx*=-0.8;if(s.life<=0){s.active=false;continue;}
+            ctx.save();ctx.globalAlpha=Math.min(1,s.life/2);ctx.translate(s.x,s.y);ctx.rotate(s.rotation);ctx.shadowBlur=10;ctx.shadowColor=s.color;ctx.fillStyle=s.color;ctx.beginPath();for(let j=0;j<5;j++){ctx.lineTo(Math.cos((18+j*72)*Math.PI/180)*s.size,-Math.sin((18+j*72)*Math.PI/180)*s.size);ctx.lineTo(Math.cos((54+j*72)*Math.PI/180)*(s.size/2),-Math.sin((54+j*72)*Math.PI/180)*(s.size/2));}ctx.closePath();ctx.fill();ctx.restore();}};
+        id=requestAnimationFrame(anim);return()=>{window.removeEventListener('resize',resize);cancelAnimationFrame(id);};
+      },[isEnabled,tc]);
+      if(!isEnabled)return null;
+      return<canvas ref={cvr} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:10,mixBlendMode:'screen'}}/>;
+    }
+
+    function MotionFX({ms,isEnabled}){
+      const wr=useRef(null);
+      useEffect(()=>{if(!isEnabled||!ms.isActive)return;if(ms.intensity>60&&wr.current){const el=wr.current;if(ms.intensity>80){el.classList.add('screen-flash');setTimeout(()=>el.classList.remove('screen-flash'),300);}el.classList.add('camera-shake');setTimeout(()=>el.classList.remove('camera-shake'),200);}if(ms.intensity>30&&Math.random()>0.5)window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:ms.origin.x,y:ms.origin.y,count:Math.floor(ms.intensity/10),type:'circle'}}));},[ms,isEnabled]);
+      if(!isEnabled)return null;return<div ref={wr} style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:20}}/>;
+    }
+    function DevMH({ms,reqPerm,perm,isEnabled}){
+      useEffect(()=>{if(!isEnabled||ms.type!=='device'||!ms.isActive)return;if(ms.intensity>40)window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:window.innerWidth/2+(Math.random()-0.5)*200,y:window.innerHeight/2+(Math.random()-0.5)*200,count:Math.floor(ms.intensity/5),type:'star'}}));},[ms,isEnabled]);
+      if(!isEnabled||perm!=='prompt')return null;
+      return<div style={{position:'fixed',bottom:96,left:'50%',transform:'translateX(-50%)',zIndex:50}}><button onClick={reqPerm} style={{display:'flex',alignItems:'center',gap:8,padding:'12px 24px',borderRadius:40,background:'rgba(255,255,255,0.1)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>📱 Enable Motion Effects</button></div>;
+    }
+    function MouseTracker({ms,isEnabled}){useEffect(()=>{if(!isEnabled||ms.type!=='mouse'||!ms.isActive||ms.velocity<=500)return;window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:ms.origin.x,y:ms.origin.y,count:Math.min(10,Math.floor(ms.velocity/200)),type:'circle'}}));},[ms,isEnabled]);return null;}
+    function TouchSwipe({ms,isEnabled}){useEffect(()=>{if(!isEnabled||ms.type!=='touch'||!ms.isActive||ms.velocity<=1000)return;window.dispatchEvent(new CustomEvent('bkp-spawn-particles',{detail:{x:ms.origin.x,y:ms.origin.y,count:Math.min(15,Math.floor(ms.velocity/150)),type:'star'}}));},[ms,isEnabled]);return null;}
+
+    function Multiplayer(){
+      const{multiplayer,isLocked}=useParentPanel();const[s1,setS1]=useState(0),[s2,setS2]=useState(0);
+      useEffect(()=>{if(!multiplayer||isLocked)return;const h=e=>{const{player,points}=e.detail;if(player===1)setS1(s=>s+points);if(player===2)setS2(s=>s+points);};window.addEventListener('bkp-score',h);return()=>window.removeEventListener('bkp-score',h);},[multiplayer,isLocked]);
+      if(!multiplayer)return null;
+      return<div style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:20,display:'flex'}}>
+        <div style={{position:'absolute',left:'50%',top:0,bottom:0,width:2,background:'rgba(255,255,255,0.2)',transform:'translateX(-50%)'}}/>
+        <div style={{flex:1,padding:32}}><div style={{fontSize:'2.5rem',fontWeight:900,color:'#4ade80',textShadow:'0 0 20px #4ade80'}}>P1: {s1}</div><div style={{color:'rgba(255,255,255,0.4)',fontSize:13,marginTop:8}}>WASD / Left Side</div></div>
+        <div style={{flex:1,padding:32,textAlign:'right'}}><div style={{fontSize:'2.5rem',fontWeight:900,color:'#60a5fa',textShadow:'0 0 20px #60a5fa'}}>P2: {s2}</div><div style={{color:'rgba(255,255,255,0.4)',fontSize:13,marginTop:8}}>Arrows / Right Side</div></div>
+      </div>;
+    }
+
+    function AudioViz(){
+      const{audioVisualizer,isLocked}=useParentPanel();const{getAnalyser}=useAudioManager();const cvr=useRef(null);
+      useEffect(()=>{if(!audioVisualizer||isLocked)return;const cv=cvr.current;if(!cv)return;const ctx=cv.getContext('2d');const an=getAnalyser();if(!an)return;const buf=new Uint8Array(an.frequencyBinCount);let id;const draw=()=>{id=requestAnimationFrame(draw);cv.width=window.innerWidth;cv.height=100;an.getByteFrequencyData(buf);ctx.clearRect(0,0,cv.width,cv.height);const bw=(cv.width/buf.length)*2.5;let x=0;for(let i=0;i<buf.length;i++){const bh=buf[i]/2.5;ctx.fillStyle=`hsla(${i*2},100%,50%,0.5)`;ctx.fillRect(x,cv.height-bh,bw,bh);x+=bw+1;}};draw();return()=>cancelAnimationFrame(id);},[audioVisualizer,isLocked,getAnalyser]);
+      if(!audioVisualizer)return null;
+      return<canvas ref={cvr} style={{position:'fixed',bottom:0,left:0,width:'100%',height:100,pointerEvents:'none',zIndex:10,opacity:0.5,mixBlendMode:'screen'}}/>;
+    }
+
+    const SCALES={pen:[261.63,293.66,329.63,392,440,523.25],oc:[261.63,311.13,349.23,392,466.16]};
+    function MusicGen(){
+      const{musicEnabled,theme,isLocked}=useParentPanel();const{playNote}=useAudioManager();const ir=useRef(null),sr=useRef(0);
+      useEffect(()=>{if(!musicEnabled||isLocked){if(ir.current)clearInterval(ir.current);return;}const sc=theme==='ocean'?SCALES.oc:SCALES.pen,tp=theme==='neon'||theme==='disco'?240:580;ir.current=setInterval(()=>{sr.current=(sr.current+(Math.random()>0.3?1:-1)+sc.length)%sc.length;if(Math.random()>0.2)playNote(sc[sr.current],false,Math.random());},tp);return()=>clearInterval(ir.current);},[musicEnabled,theme,isLocked,playNote]);return null;
+    }
+
+    function Surprise(){
+      const{surpriseEffects,isLocked}=useParentPanel();
+      useEffect(()=>{if(!surpriseEffects||isLocked)return;const id=setInterval(()=>{const e=['emoji-rain','starburst','color-wave'];window.dispatchEvent(new CustomEvent('bkp-surprise',{detail:e[Math.floor(Math.random()*e.length)]}));},10000);return()=>clearInterval(id);},[surpriseEffects,isLocked]);return null;
+    }
+
+    function VoiceR(){
+      const{voiceReactions,soundEnabled}=useParentPanel();const{speak}=useAudioManager();const cr=useRef(0),tr=useRef(null);
+      useEffect(()=>{if(!voiceReactions||!soundEnabled)return;const h=()=>{cr.current++;if(tr.current)clearTimeout(tr.current);if(cr.current===10)speak('Yay!');else if(cr.current===30)speak('Wow!');else if(cr.current===50)speak('Super!');else if(cr.current===100)speak('Amazing!');else if(cr.current===200)speak('Incredible!');tr.current=setTimeout(()=>{cr.current=0;},2000);};window.addEventListener('bkp-interaction',h);return()=>{window.removeEventListener('bkp-interaction',h);if(tr.current)clearTimeout(tr.current);};},[voiceReactions,soundEnabled,speak]);return null;
+    }
+
+    function IdleDemo(){
+      const{isLocked}=useParentPanel();const[idle,setIdle]=useState(false);const tr=useRef(null),dr=useRef(null);
+      useEffect(()=>{if(isLocked){setIdle(false);return;}const reset=()=>{setIdle(false);clearTimeout(tr.current);clearInterval(dr.current);tr.current=setTimeout(()=>setIdle(true),30000);};window.addEventListener('mousemove',reset);window.addEventListener('keydown',reset);window.addEventListener('touchstart',reset);reset();return()=>{window.removeEventListener('mousemove',reset);window.removeEventListener('keydown',reset);window.removeEventListener('touchstart',reset);clearTimeout(tr.current);clearInterval(dr.current);};},[isLocked]);
+      useEffect(()=>{if(idle){dr.current=setInterval(()=>{window.dispatchEvent(new CustomEvent('bkp-demo-interaction',{detail:{x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight}}));},800);}else clearInterval(dr.current);return()=>clearInterval(dr.current);},[idle]);
+      return<AnimatePresence>{idle&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:30,display:'flex',alignItems:'center',justifyContent:'center'}}><div className="animate-bkp-pulse" style={{background:'rgba(0,0,0,0.45)',backdropFilter:'blur(8px)',padding:'16px 40px',borderRadius:50,color:'#fff',fontSize:'clamp(1.5rem,4vw,2.5rem)',fontWeight:900,letterSpacing:'0.1em',border:'2px solid rgba(255,255,255,0.2)'}}>✨ Tap to Play! ✨</div></motion.div>}</AnimatePresence>;
+    }
+
+    function PerfMon(){
+      const{setParticleDensity,particleDensity}=useParentPanel();const fr=useRef(0),lr=useRef(performance.now()),lfr=useRef(0);
+      useEffect(()=>{let id;const chk=t=>{fr.current++;if(t-lr.current>=1000){const fps=fr.current;if(fps<30){lfr.current++;if(lfr.current>3&&particleDensity>50){setParticleDensity(p=>Math.max(50,p-20));lfr.current=0;}}else lfr.current=0;fr.current=0;lr.current=t;}id=requestAnimationFrame(chk);};id=requestAnimationFrame(chk);return()=>cancelAnimationFrame(id);},[particleDensity,setParticleDensity]);return null;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // PARENT CONTROL PANEL
+    // ════════════════════════════════════════════════════════════════════════════
+    function ParentControlPanel(){
+      const p=useParentPanel();
+      const{isPanelOpen,closePanel,theme,setTheme,mode,setMode,soundEnabled,toggleSound,brightness,setBrightness,reduceMotion,toggleReduceMotion,sessionTime,setSessionTime,timeRemaining,lockScreen,particleDensity,setParticleDensity,musicEnabled,toggleMusic,multiplayer,toggleMultiplayer,surpriseEffects,toggleSurpriseEffects,voiceReactions,toggleVoiceReactions,fpsCap,setFpsCap,audioVisualizer,toggleAudioVisualizer,starsEnabled,toggleStars,motionEffectsEnabled,toggleMotionEffects,rainbowTrail,toggleRainbowTrail,fireworksEnabled,toggleFireworks,comboEnabled,toggleCombo,targetGame,toggleTargetGame,balloons,toggleBalloons,ripple,toggleRipple,giftBoxes,toggleGiftBoxes,weatherFX,toggleWeatherFX,flyingCreatures,toggleFlyingCreatures,achievements,toggleAchievements,reactionWords,toggleReactionWords,pianoKeys,togglePianoKeys,lightningEnabled,toggleLightning,warpMode,toggleWarpMode,confettiCannon,toggleConfettiCannon}=p;
+      const tr=useRef(null);const rt=()=>{if(tr.current)clearTimeout(tr.current);tr.current=setTimeout(closePanel,60000);};
+      useEffect(()=>{if(isPanelOpen)rt();return()=>clearTimeout(tr.current);},[isPanelOpen]);
+      if(!isPanelOpen)return null;
+      const fmt=s=>`${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+      const T=({label,checked,onChange,disabled=false})=>(
+        <button onClick={onChange} disabled={disabled} className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-colors text-sm ${disabled?'bg-zinc-900/40 border-zinc-800/40 opacity-40 cursor-not-allowed':'bg-zinc-900 border-zinc-800 hover:border-zinc-600 cursor-pointer'}`}>
+          <span>{label}</span>
+          <div className={`w-10 h-5 rounded-full transition-all relative shrink-0 ${checked&&!disabled?'bg-green-500':'bg-zinc-700'}`}><div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all shadow-sm ${checked&&!disabled?'left-5':'left-0.5'}`}/></div>
+        </button>
+      );
+      return(
+        <AnimatePresence>
+          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3" onClick={closePanel} onMouseMove={rt} onTouchStart={rt}>
+            <motion.div initial={{scale:0.93,y:24}} animate={{scale:1,y:0}} exit={{scale:0.93,y:24}} onClick={e=>e.stopPropagation()} className="bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden text-zinc-100 flex flex-col max-h-[92vh]">
+              <div className="flex items-center justify-between p-5 border-b border-zinc-800 shrink-0">
+                <div className="flex items-center gap-3"><Settings className="w-6 h-6 text-zinc-400"/><h2 className="text-xl font-bold">⚙️ Parent Controls</h2></div>
+                <button onClick={closePanel} className="p-2 rounded-full hover:bg-zinc-800 transition-colors"><X className="w-5 h-5"/></button>
+              </div>
+              <div className="p-5 overflow-y-auto space-y-6">
+                {/* Theme & Mode */}
+                <section>
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">🎨 Theme & Mode</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">{Object.values(THEMES).map(t=><button key={t.id} onClick={()=>setTheme(t.id)} className={`w-full px-3 py-2 rounded-xl border text-left text-sm font-medium transition-all ${theme===t.id?'bg-white text-black border-white':'bg-zinc-900 border-zinc-800 hover:border-zinc-600'}`}>{t.name}</button>)}</div>
+                    <div className="space-y-1.5">{Object.values(MODES).map(m=><button key={m.id} onClick={()=>setMode(m.id)} className={`w-full p-2.5 rounded-xl border text-left transition-all ${mode===m.id?'bg-white text-black border-white':'bg-zinc-900 border-zinc-800 hover:border-zinc-600'}`}><div className="font-medium text-sm">{m.name}</div><div className={`text-xs mt-0.5 ${mode===m.id?'text-zinc-600':'text-zinc-500'}`}>{m.description}</div></button>)}</div>
+                  </div>
+                </section>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* Gameplay */}
+                  <section className="space-y-1.5">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">🎮 Gameplay</h3>
+                    <T label="👥 Multiplayer" checked={multiplayer} onChange={toggleMultiplayer}/>
+                    <T label="🎯 Target Game" checked={targetGame} onChange={toggleTargetGame}/>
+                    <T label="🔥 Combo Meter" checked={comboEnabled} onChange={toggleCombo}/>
+                    <T label="🎁 Gift Boxes" checked={giftBoxes} onChange={toggleGiftBoxes}/>
+                    <T label="🏅 Achievements" checked={achievements} onChange={toggleAchievements}/>
+                    <T label="🌀 Warp Burst" checked={warpMode} onChange={toggleWarpMode}/>
+                    <T label="✨ Surprises" checked={surpriseEffects} onChange={toggleSurpriseEffects}/>
+                    <T label="📊 Audio Viz" checked={audioVisualizer} onChange={toggleAudioVisualizer}/>
+                  </section>
+                  {/* Sound */}
+                  <section className="space-y-1.5">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">🎵 Sound</h3>
+                    <T label="🔊 Sound FX" checked={soundEnabled} onChange={toggleSound}/>
+                    <T label="🎵 Background Music" checked={musicEnabled} onChange={toggleMusic}/>
+                    <T label="🎤 Voice Reactions" checked={voiceReactions} onChange={toggleVoiceReactions}/>
+                    <T label="🎹 Piano Keys" checked={pianoKeys} onChange={togglePianoKeys}/>
+                  </section>
+                  {/* Characters */}
+                  <section className="space-y-1.5">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">🐾 Characters</h3>
+                    <T label="🐉 Flying Creatures" checked={flyingCreatures} onChange={toggleFlyingCreatures} disabled={reduceMotion}/>
+                    <T label="🎈 Balloon Trail" checked={balloons} onChange={toggleBalloons} disabled={reduceMotion}/>
+                    <T label="💬 Reaction Words" checked={reactionWords} onChange={toggleReactionWords}/>
+                    <T label="❄️ Weather FX" checked={weatherFX} onChange={toggleWeatherFX} disabled={reduceMotion}/>
+                  </section>
+                  {/* Visual FX */}
+                  <section className="space-y-1.5">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">✨ Visual FX</h3>
+                    <T label="🌈 Rainbow Trail" checked={rainbowTrail} onChange={toggleRainbowTrail} disabled={reduceMotion}/>
+                    <T label="🎆 Fireworks" checked={fireworksEnabled} onChange={toggleFireworks} disabled={reduceMotion}/>
+                    <T label="⭐ Falling Stars" checked={starsEnabled} onChange={toggleStars} disabled={reduceMotion}/>
+                    <T label="⚡ Lightning" checked={lightningEnabled} onChange={toggleLightning} disabled={reduceMotion}/>
+                    <T label="🎊 Confetti Cannon" checked={confettiCannon} onChange={toggleConfettiCannon} disabled={reduceMotion}/>
+                    <T label="💧 Ripple Rings" checked={ripple} onChange={toggleRipple}/>
+                    <T label="⚡ Motion FX" checked={motionEffectsEnabled} onChange={toggleMotionEffects} disabled={reduceMotion}/>
+                    <T label="🧘 Reduce Motion" checked={reduceMotion} onChange={toggleReduceMotion}/>
+                  </section>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <section className="space-y-3">
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">⚙️ Performance</h3>
+                    {[{l:'☀️ Brightness',min:50,max:150,val:brightness,set:setBrightness,suf:'%'},{l:'✨ Particle Density',min:10,max:200,step:10,val:particleDensity,set:setParticleDensity,suf:'%'}].map(s=>(
+                      <div key={s.l} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                        <div className="flex justify-between mb-2"><span className="text-sm">{s.l}</span><span className="text-xs text-zinc-400">{s.val}{s.suf}</span></div>
+                        <input type="range" min={s.min} max={s.max} step={s.step||1} value={s.val} onChange={e=>s.set(e.target.value)} className="w-full accent-white"/>
+                      </div>
+                    ))}
+                    <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                      <div className="flex items-center gap-2 mb-2"><MonitorPlay className="w-4 h-4"/><span className="text-sm">FPS Cap</span></div>
+                      <div className="flex gap-2">{[30,60,120].map(f=><button key={f} onClick={()=>setFpsCap(f)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${fpsCap===f?'bg-white text-black':'bg-zinc-800 hover:bg-zinc-700'}`}>{f} FPS</button>)}</div>
+                    </div>
+                  </section>
+                  <section>
+                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">⏱️ Session Timer</h3>
+                    <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                      <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-2"><Clock className="w-4 h-4"/><span className="text-sm">Auto-Lock After</span></div>{timeRemaining>0&&<span className="text-xs font-mono text-green-400">{fmt(timeRemaining)}</span>}</div>
+                      <div className="grid grid-cols-5 gap-1">{[0,5,15,30,60].map(m=><button key={m} onClick={()=>setSessionTime(m)} className={`py-2 rounded-lg text-xs font-bold transition-colors ${sessionTime===m?'bg-white text-black':'bg-zinc-800 hover:bg-zinc-700'}`}>{m===0?'Off':`${m}m`}</button>)}</div>
+                    </div>
+                    <div className="mt-3 p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-500 leading-relaxed">
+                      <div className="font-semibold text-zinc-400 mb-1">💡 How to access:</div>
+                      Hold the <strong className="text-zinc-300">top-left corner</strong> for 2 seconds to open/close controls or unlock.
+                    </div>
+                  </section>
+                </div>
+              </div>
+              <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 flex justify-between items-center shrink-0">
+                <button onClick={()=>{lockScreen();closePanel();}} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors font-medium text-sm"><Lock className="w-4 h-4"/> Lock Screen</button>
+                <button onClick={closePanel} className="px-8 py-2.5 rounded-xl bg-white text-black font-bold hover:bg-zinc-200 transition-colors text-sm">Done ✓</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      );
+    }
+
+    function ParentUnlock(){
+      const{openPanel,isPanelOpen,isLocked,unlockScreen}=useParentPanel();const[prog,setP]=useState(0);const ir=useRef(null);
+      if(isPanelOpen)return null;
+      const start=e=>{e.preventDefault();let c=0;ir.current=setInterval(()=>{c+=5;setP(c);if(c>=100){clearInterval(ir.current);setP(0);isLocked?unlockScreen():openPanel();}},100);};
+      const end=()=>{if(ir.current)clearInterval(ir.current);setP(0);};
+      return<div style={{position:'fixed',top:0,left:0,width:64,height:64,zIndex:50,display:'flex',alignItems:'flex-start',justifyContent:'flex-start',padding:8,cursor:'pointer',touchAction:'none'}} onMouseDown={start} onMouseUp={end} onMouseLeave={end} onTouchStart={start} onTouchEnd={end}>
+        {prog>0&&<div style={{width:32,height:32,borderRadius:'50%',border:'4px solid rgba(255,255,255,0.2)',position:'relative',overflow:'hidden'}}><div style={{position:'absolute',bottom:0,left:0,width:'100%',background:'rgba(255,255,255,0.8)',transition:'height 0.1s',height:`${prog}%`}}/></div>}
+      </div>;
+    }
+
+    function LockScreen(){
+      const{isLocked}=useParentPanel();
+      return<AnimatePresence>{isLocked&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} style={{position:'fixed',inset:0,zIndex:40,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.8)',backdropFilter:'blur(8px)',color:'#fff'}}><Lock className="w-24 h-24" style={{marginBottom:24,opacity:0.5}}/><h1 style={{fontSize:'clamp(2.5rem,8vw,4rem)',fontWeight:900,marginBottom:16}}>Locked 🔒</h1><p style={{fontSize:'clamp(1rem,3vw,1.5rem)',opacity:0.6,textAlign:'center',padding:'0 24px'}}>Hold the top-left corner for 2 seconds to unlock</p></motion.div>}</AnimatePresence>;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // MAIN COMPONENT
+    // ════════════════════════════════════════════════════════════════════════════
+    function BabyKeyPlay(){
+      const pRef=useRef(null);
+      const{isLocked,soundEnabled,multiplayer,theme,reduceMotion,starsEnabled,motionEffectsEnabled,mode}=useParentPanel();
+      const{playPop,playNote,initAudio}=useAudioManager();
+      const[ms,reqPerm,perm]=useMotionDetection(reduceMotion);
+
+      useEffect(()=>{
+        const act=(x,y,player=1)=>{
+          if(isLocked)return;
+          if(soundEnabled)initAudio();
+          window.dispatchEvent(new CustomEvent('bkp-interaction'));
+          window.dispatchEvent(new CustomEvent('bkp-tap',{detail:{x,y}}));
+          if(multiplayer)window.dispatchEvent(new CustomEvent('bkp-score',{detail:{player,points:10}}));
+          pRef.current?.spawnExplosion(x,y,22);
+          if(soundEnabled)playPop(x/window.innerWidth);
+        };
+        const onK=e=>{if(e.repeat||isLocked)return;const w=window.innerWidth,h=window.innerHeight;if(multiplayer){if(['w','a','s','d'].includes(e.key.toLowerCase())){act(w*0.25,h*0.5,1);if(soundEnabled)playNote(e.key,false,0.25);}else if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){act(w*0.75,h*0.5,2);if(soundEnabled)playNote(e.key,false,0.75);}}else{const x=Math.random()*w*0.8+w*0.1,y=Math.random()*h*0.8+h*0.1;act(x,y,1);if(soundEnabled)playNote(e.key,false,x/w);}};
+        const onP=e=>{if(isLocked||mode==='drawing')return;act(e.clientX,e.clientY,multiplayer?(e.clientX<window.innerWidth/2?1:2):1);};
+        const onDemo=e=>act(e.detail.x,e.detail.y,1);
+        const onS=e=>{if(e.detail==='emoji-rain')pRef.current?.spawnEmojiRain();else pRef.current?.spawnExplosion(window.innerWidth/2,window.innerHeight/2,130,'star');};
+        const onSP=e=>{const{x,y,count,type}=e.detail;pRef.current?.spawnExplosion(x,y,count,type);};
+        const onWarp=e=>{pRef.current?.spawnSpiral(e.detail.x,e.detail.y);};
+        window.addEventListener('keydown',onK);window.addEventListener('pointerdown',onP);window.addEventListener('bkp-demo-interaction',onDemo);window.addEventListener('bkp-surprise',onS);window.addEventListener('bkp-spawn-particles',onSP);window.addEventListener('bkp-warp-burst',onWarp);
+        return()=>{window.removeEventListener('keydown',onK);window.removeEventListener('pointerdown',onP);window.removeEventListener('bkp-demo-interaction',onDemo);window.removeEventListener('bkp-surprise',onS);window.removeEventListener('bkp-spawn-particles',onSP);window.removeEventListener('bkp-warp-burst',onWarp);};
+      },[isLocked,soundEnabled,multiplayer,initAudio,playPop,playNote,mode]);
+
+      return(
+        <div style={{position:'relative',width:'100%',height:'100%',overflow:'hidden',background:getTC(theme).bg}}>
+          {/* Background layers */}
+          <GalaxyBG/>
+          <DiscoBall/>
+          {/* Main canvas */}
+          <ParticleSystem ref={pRef}/>
+          {/* Overlay effects */}
+          <FallingStars theme={theme} isEnabled={starsEnabled&&!reduceMotion}/>
+          <RainbowWave/>
+          <RippleRings/>
+          <RainbowTrail/>
+          <FireworksSystem/>
+          <LightningCanvas/>
+          <WeatherEffects/>
+          {/* Motion */}
+          <MotionFX ms={ms} isEnabled={motionEffectsEnabled&&!reduceMotion}/>
+          <MouseTracker ms={ms} isEnabled={motionEffectsEnabled&&!reduceMotion}/>
+          <TouchSwipe ms={ms} isEnabled={motionEffectsEnabled&&!reduceMotion}/>
+          <DevMH ms={ms} reqPerm={reqPerm} perm={perm} isEnabled={motionEffectsEnabled&&!reduceMotion}/>
+          {/* Characters */}
+          <BouncingAnimals/>
+          <FlyingCreatures/>
+          <GiftBoxes/>
+          <BalloonTrail/>
+          {/* Particle effects */}
+          <ColorSplash/>
+          <ConfettiCannon/>
+          {/* Drawing */}
+          <DrawingMode/>
+          {/* Piano (music mode) */}
+          <PianoKeyboard/>
+          {/* Game HUD */}
+          <Multiplayer/>
+          <AudioViz/>
+          <TargetGame/>
+          <ComboSystem/>
+          <WarpBurst/>
+          {/* Feedback */}
+          <KeyLetterPop/>
+          <ReactionWords/>
+          <AchievementBadges/>
+          <ScoreDisplay/>
+          {/* Background systems */}
+          <MusicGen/>
+          <Surprise/>
+          <VoiceR/>
+          <IdleDemo/>
+          <PerfMon/>
+        </div>
+      );
+    }
+
+    function App(){
+      return<ParentPanelProvider><BabyKeyPlay/><ParentUnlock/><ParentControlPanel/><LockScreen/></ParentPanelProvider>;
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
